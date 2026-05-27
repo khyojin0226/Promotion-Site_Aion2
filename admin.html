@@ -1,0 +1,986 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>길드 홍보 data.json 관리</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Gowun+Batang&family=Gowun+Dodum&family=Nanum+Gothic:wght@400;700;800&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700;800&family=Noto+Serif+KR:wght@400;600;700&display=swap");
+
+    :root {
+      --bg: #070707;
+      --panel: #15120e;
+      --panel-2: #1e1a13;
+      --gold: #d7b45a;
+      --gold-2: #f1dc95;
+      --text: #f7eed7;
+      --muted: #c8bfa9;
+      --line: rgba(215, 180, 90, .33);
+      --danger: #e07868;
+      --ok: #96d09d;
+      --input: #0d0c0a;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 16% 2%, rgba(215,180,90,.13), transparent 28rem),
+        radial-gradient(circle at 88% 8%, rgba(160,174,196,.1), transparent 24rem),
+        linear-gradient(180deg, #050505, #11100d 42%, #070707);
+      color: var(--text);
+    }
+
+    header {
+      padding: 2rem clamp(1rem, 4vw, 3rem);
+      border-bottom: 1px solid var(--line);
+      background: rgba(5,5,5,.72);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      backdrop-filter: blur(12px);
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--gold-2);
+      line-height: 1.2;
+    }
+
+    h1 { font-size: clamp(1.8rem, 4vw, 3.2rem); }
+    h2 { font-size: 1.35rem; }
+    h3 { font-size: 1.06rem; }
+    p { line-height: 1.7; color: var(--muted); }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: .7rem;
+      margin-top: 1rem;
+    }
+
+    .flow div {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.035);
+      padding: .75rem;
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .shell {
+      width: min(1380px, calc(100% - 1.2rem));
+      margin: 1rem auto 3rem;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(360px, .9fr);
+      gap: 1rem;
+    }
+
+    .stack { display: grid; gap: 1rem; }
+    .card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(30,26,19,.96), rgba(12,11,9,.96));
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 18px 50px rgba(0,0,0,.34);
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .75rem;
+      margin-bottom: .85rem;
+    }
+
+    label {
+      display: grid;
+      gap: .4rem;
+      color: var(--gold-2);
+      font-size: .92rem;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      color: var(--text);
+      background: var(--input);
+      border: 1px solid rgba(215,180,90,.28);
+      border-radius: 8px;
+      padding: .72rem .78rem;
+      font: inherit;
+      outline: none;
+    }
+
+    textarea { min-height: 110px; resize: vertical; }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(215,180,90,.12);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .8rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 90px 1fr 1fr;
+      gap: .8rem;
+    }
+
+    .hint { color: var(--muted); font-size: .88rem; margin: .45rem 0 0; }
+    .actions { display: flex; flex-wrap: wrap; gap: .55rem; }
+
+    button, .button-link {
+      border: 1px solid rgba(215,180,90,.45);
+      background: rgba(215,180,90,.1);
+      color: var(--text);
+      border-radius: 8px;
+      padding: .68rem .84rem;
+      font: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+    }
+
+    button:hover, .button-link:hover { border-color: var(--gold-2); background: rgba(215,180,90,.17); }
+    .primary { background: linear-gradient(180deg, #e2c56f, #a77d28); color: #191006; border-color: #f4df9a; font-weight: 800; }
+    .danger { border-color: rgba(224,120,104,.62); color: #ffd7d1; background: rgba(224,120,104,.1); }
+    .quiet { border-color: rgba(255,255,255,.13); color: var(--muted); background: rgba(255,255,255,.035); }
+
+    .notice {
+      border: 1px solid rgba(215,180,90,.32);
+      background: rgba(215,180,90,.08);
+      padding: .85rem;
+      border-radius: 8px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .dirty { color: #ffe6a2; }
+    .ok { color: var(--ok); }
+    .error { color: var(--danger); }
+
+    .article-editor {
+      display: grid;
+      gap: .8rem;
+      padding: .85rem;
+      border: 1px solid rgba(215,180,90,.24);
+      border-radius: 8px;
+      background: rgba(0,0,0,.18);
+      margin-bottom: .75rem;
+    }
+
+    .article-tools {
+      display: flex;
+      justify-content: space-between;
+      gap: .6rem;
+      flex-wrap: wrap;
+    }
+
+    .preview {
+      position: sticky;
+      top: 135px;
+      max-height: calc(100vh - 150px);
+      overflow: auto;
+    }
+
+    .preview-frame {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #070707;
+    }
+
+    .preview-frame h2,
+    .preview-frame strong,
+    .preview-frame p,
+    .preview-frame div,
+    .preview-frame li {
+      font-family: inherit;
+    }
+
+    .mini-hero {
+      position: relative;
+      min-height: 270px;
+      display: grid;
+      align-items: end;
+      padding: 1.2rem;
+      isolation: isolate;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 70% 24%, rgba(244,223,154,.2), transparent 9rem),
+        linear-gradient(135deg, #070707, #241d12 48%, #080808);
+    }
+
+    .mini-hero img, .image-preview img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+    }
+
+    .mini-hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(90deg, rgba(0,0,0,.84), rgba(0,0,0,.25), rgba(0,0,0,.78));
+    }
+
+    .mini-hero h2 { font-size: clamp(2rem, 7vw, 3.8rem); }
+    .mini-hero p { color: #fff1c9; margin: .55rem 0 0; }
+
+    .mini-main {
+      padding: .85rem;
+      display: grid;
+      gap: .75rem;
+    }
+
+    .mini-card {
+      border: 1px solid var(--line);
+      background: rgba(25,22,17,.92);
+      border-radius: 8px;
+      padding: .85rem;
+    }
+
+    .mini-title {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      color: var(--gold-2);
+      font-weight: 800;
+      margin-bottom: .5rem;
+    }
+
+    .mini-card ul { list-style: none; padding: 0; margin: 0; display: grid; gap: .4rem; color: var(--muted); }
+    .mini-card li { display: grid; grid-template-columns: 1.2rem 1fr; gap: .3rem; line-height: 1.6; overflow-wrap: anywhere; }
+    .small { font-size: .9rem; }
+    .medium { font-size: 1rem; }
+    .large { font-size: 1.12rem; }
+
+    .mini-footer {
+      margin-top: .75rem;
+      border-left: 4px solid var(--gold);
+      padding: .85rem;
+      background: rgba(0,0,0,.22);
+      white-space: pre-wrap;
+    }
+
+    .image-preview {
+      min-height: 120px;
+      border: 1px dashed rgba(215,180,90,.3);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      background:
+        radial-gradient(circle at 50% 35%, rgba(244,223,154,.16), transparent 7rem),
+        linear-gradient(135deg, #080808, #211a10);
+    }
+
+    pre {
+      margin: 0;
+      max-height: 360px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #eadbad;
+      background: #090806;
+      border: 1px solid rgba(215,180,90,.22);
+      border-radius: 8px;
+      padding: .85rem;
+    }
+
+    .hidden-input { display: none; }
+
+    @media (max-width: 980px) {
+      header { position: static; }
+      .shell { grid-template-columns: 1fr; }
+      .preview { position: static; max-height: none; }
+      .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .actions button, .button-link { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div>
+        <h1>길드 홍보 data.json 관리</h1>
+        <p>여기서 내용을 수정한 뒤 반드시 <strong>data.json 내보내기</strong>를 눌러 GitHub 저장소의 data.json과 교체하세요.</p>
+      </div>
+      <div class="actions">
+        <a class="button-link" href="./index.html" target="_blank" rel="noopener">index.html 열기</a>
+        <button class="primary" id="exportBtn" type="button">data.json 내보내기</button>
+      </div>
+    </div>
+    <div class="flow" aria-label="운영 흐름">
+      <div>1단계: 내용 수정</div>
+      <div>2단계: data.json 내보내기</div>
+      <div>3단계: GitHub 저장소의 data.json 교체</div>
+      <div>4단계: GitHub Pages에서 반영 확인</div>
+    </div>
+  </header>
+
+  <div class="shell">
+    <div class="stack">
+      <section class="card">
+        <div class="card-head">
+          <h2>데이터 관리</h2>
+          <span id="dirtyState" class="ok">내보내기 준비됨</span>
+        </div>
+        <div class="notice">
+          임시 저장은 지금 쓰는 브라우저에만 남습니다. 모든 방문자에게 반영하려면 data.json을 내보내고 GitHub 저장소의 data.json을 새 파일로 교체해야 합니다.
+        </div>
+        <div class="actions" style="margin-top:.8rem">
+          <label class="button-link" for="importFile">기존 data.json 불러오기</label>
+          <input id="importFile" class="hidden-input" type="file" accept="application/json,.json">
+          <button id="saveDraftBtn" type="button">임시 저장</button>
+          <button id="loadDraftBtn" type="button">임시 저장 불러오기</button>
+          <button id="resetBtn" class="danger" type="button">기본값으로 초기화</button>
+        </div>
+        <p id="message" class="hint" role="status"></p>
+        <p id="validation" class="hint"></p>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>전체 디자인</h2></div>
+        <label>전체 폰트
+          <select id="themeFont">
+            <option value="system">기본 고딕</option>
+            <option value="notoSans">Noto Sans KR</option>
+            <option value="notoSerif">Noto Serif KR</option>
+            <option value="nanumGothic">나눔고딕</option>
+            <option value="nanumMyeongjo">나눔명조</option>
+            <option value="gowunDodum">고운돋움</option>
+            <option value="gowunBatang">고운바탕</option>
+            <option value="doHyeon">도현</option>
+            <option value="blackHan">검은고딕</option>
+            <option value="serif">명조 판타지</option>
+            <option value="clean">깔끔한 UI 고딕</option>
+            <option value="rounded">둥근 고딕</option>
+          </select>
+        </label>
+        <p class="hint">방문자 페이지 전체 폰트에 적용됩니다. 내보낸 data.json을 GitHub에 교체해야 실제 사이트에도 반영됩니다.</p>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>Hero 영역</h2></div>
+        <div class="grid-2">
+          <label>메인 타이틀
+            <input id="heroTitle" type="text">
+          </label>
+          <label>대표 이미지 alt 텍스트
+            <input id="heroAlt" type="text">
+          </label>
+        </div>
+        <label>서브 타이틀
+          <textarea id="heroSubtitle"></textarea>
+        </label>
+        <label>대표 이미지 URL 또는 경로
+          <input id="heroImage" type="text" placeholder="assets/hero.png 또는 https://example.com/image.png">
+        </label>
+        <p class="hint">비어 있거나 로딩에 실패하면 금빛 판타지 fallback 배경이 표시됩니다.</p>
+        <div id="heroImagePreview" class="image-preview">대표 이미지 미리보기</div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>Intro 영역</h2></div>
+        <div class="grid-2">
+          <label><span>로딩 인트로 사용</span>
+            <select id="introEnabled">
+              <option value="true">사용</option>
+              <option value="false">사용 안 함</option>
+            </select>
+          </label>
+          <label><span>같은 탭에서 재노출 방지</span>
+            <select id="introSkip">
+              <option value="true">사용</option>
+              <option value="false">사용 안 함</option>
+            </select>
+          </label>
+        </div>
+        <div class="grid-2">
+          <label>인트로 지속 시간(ms)
+            <input id="introDuration" type="number" min="400" max="10000" step="100">
+          </label>
+          <label>인트로 이미지 alt 텍스트
+            <input id="introAlt" type="text">
+          </label>
+        </div>
+        <label>인트로 이미지 URL 또는 경로
+          <input id="introImage" type="text" placeholder="assets/intro.png 또는 외부 이미지 URL">
+        </label>
+        <p class="hint">첨부 이미지는 참고용입니다. 실제 이미지는 사용자가 준비해서 경로를 입력합니다.</p>
+        <div id="introImagePreview" class="image-preview">인트로 이미지 미리보기</div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>중앙 아티클 영역</h2>
+          <button id="addArticleBtn" class="primary" type="button">아티클 추가</button>
+        </div>
+        <p class="hint">본문은 한 줄이 bullet 하나입니다. 빈 줄은 내보낼 때 자동으로 제외됩니다.</p>
+        <div id="articleEditors"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>하단 안내 영역</h2></div>
+        <label>안내 제목
+          <input id="footerTitle" type="text">
+        </label>
+        <label>안내 본문
+          <textarea id="footerContent"></textarea>
+        </label>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>JSON 형식 미리보기</h2></div>
+        <pre id="jsonPreview"></pre>
+      </section>
+    </div>
+
+    <aside class="card preview">
+      <div class="card-head"><h2>전체 미리보기</h2></div>
+      <div id="sitePreview" class="preview-frame"></div>
+    </aside>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "guild-promo-draft";
+    const DEFAULT_DATA = {
+      site: { version: "1.0.0", updatedAt: "2026-01-01" },
+      theme: { fontFamily: "system" },
+      hero: {
+        title: "Celestial Vanguard",
+        subtitle: "빛의 날개 아래, 함께 전장을 지배할 동료를 찾습니다.",
+        image: "",
+        imageAlt: "길드 대표 이미지"
+      },
+      intro: {
+        enabled: true,
+        image: "",
+        imageAlt: "판타지 인트로 이미지",
+        durationMs: 3000,
+        useSessionSkip: true
+      },
+      articles: [
+        {
+          id: "article-1",
+          emoji: "⚔️",
+          title: "길드 소개",
+          content: ["매일 접속하지 않아도 부담 없는 분위기", "신규, 복귀, 성장 유저 모두 환영", "함께 성장하는 길드 문화"],
+          bulletStyle: "star",
+          fontSize: "medium"
+        },
+        {
+          id: "article-2",
+          emoji: "🛡️",
+          title: "이런 분을 찾습니다",
+          content: ["기본 매너를 지키는 분", "길드 콘텐츠에 관심 있는 분", "오래 함께할 커뮤니티를 찾는 분"],
+          bulletStyle: "arrow",
+          fontSize: "medium"
+        },
+        {
+          id: "article-3",
+          emoji: "✨",
+          title: "주요 활동",
+          content: ["길드전", "협동 콘텐츠", "정보 공유", "이벤트 참여"],
+          bulletStyle: "dot",
+          fontSize: "medium"
+        }
+      ],
+      footer: {
+        title: "가입 및 문의",
+        content: "게임 내 길드 검색 또는 운영진에게 문의해주세요."
+      }
+    };
+
+    const bullets = { dot: "●", arrow: "▸", star: "✦" };
+    const fontSizes = new Set(["small", "medium", "large"]);
+    const fontOptions = new Set(["system", "notoSans", "notoSerif", "nanumGothic", "nanumMyeongjo", "gowunDodum", "gowunBatang", "doHyeon", "blackHan", "serif", "clean", "rounded"]);
+    const fontMap = {
+      system: '"Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif',
+      notoSans: '"Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif',
+      notoSerif: '"Noto Serif KR", "Nanum Myeongjo", Georgia, serif',
+      nanumGothic: '"Nanum Gothic", "Noto Sans KR", "Malgun Gothic", sans-serif',
+      nanumMyeongjo: '"Nanum Myeongjo", "Noto Serif KR", Georgia, serif',
+      gowunDodum: '"Gowun Dodum", "Noto Sans KR", "Malgun Gothic", sans-serif',
+      gowunBatang: '"Gowun Batang", "Noto Serif KR", Georgia, serif',
+      doHyeon: '"Do Hyeon", "Noto Sans KR", "Malgun Gothic", sans-serif',
+      blackHan: '"Black Han Sans", "Noto Sans KR", "Malgun Gothic", sans-serif',
+      serif: 'Georgia, "Times New Roman", "Noto Serif KR", serif',
+      clean: '"Segoe UI", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif',
+      rounded: '"Arial Rounded MT Bold", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif'
+    };
+    const data = structuredClone(DEFAULT_DATA);
+    let dirty = false;
+
+    const $ = id => document.getElementById(id);
+
+    function text(value, fallback = "") {
+      return typeof value === "string" ? value : fallback;
+    }
+
+    function linesToArray(value) {
+      return text(value).split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+    }
+
+    function normalizeData(raw) {
+      const source = raw && typeof raw === "object" ? raw : {};
+      return {
+        site: {
+          version: text(source.site?.version, "1.0.0"),
+          updatedAt: text(source.site?.updatedAt, new Date().toISOString().slice(0, 10))
+        },
+        theme: {
+          fontFamily: fontOptions.has(source.theme?.fontFamily) ? source.theme.fontFamily : DEFAULT_DATA.theme.fontFamily
+        },
+        hero: {
+          title: text(source.hero?.title, DEFAULT_DATA.hero.title),
+          subtitle: text(source.hero?.subtitle, DEFAULT_DATA.hero.subtitle),
+          image: text(source.hero?.image, ""),
+          imageAlt: text(source.hero?.imageAlt, DEFAULT_DATA.hero.imageAlt)
+        },
+        intro: {
+          enabled: typeof source.intro?.enabled === "boolean" ? source.intro.enabled : DEFAULT_DATA.intro.enabled,
+          image: text(source.intro?.image, ""),
+          imageAlt: text(source.intro?.imageAlt, DEFAULT_DATA.intro.imageAlt),
+          durationMs: Math.min(Math.max(Number(source.intro?.durationMs) || 3000, 400), 10000),
+          useSessionSkip: typeof source.intro?.useSessionSkip === "boolean" ? source.intro.useSessionSkip : DEFAULT_DATA.intro.useSessionSkip
+        },
+        articles: Array.isArray(source.articles) ? source.articles.map((item, index) => ({
+          id: text(item?.id, `article-${Date.now()}-${index}`),
+          emoji: text(item?.emoji, "✦"),
+          title: text(item?.title, "제목 없음"),
+          content: Array.isArray(item?.content) ? item.content.filter(line => typeof line === "string" && line.trim()).map(line => line.trim()) : [],
+          bulletStyle: bullets[item?.bulletStyle] ? item.bulletStyle : "star",
+          fontSize: fontSizes.has(item?.fontSize) ? item.fontSize : "medium"
+        })) : structuredClone(DEFAULT_DATA.articles),
+        footer: {
+          title: text(source.footer?.title, DEFAULT_DATA.footer.title),
+          content: text(source.footer?.content, DEFAULT_DATA.footer.content)
+        }
+      };
+    }
+
+    function replaceData(next) {
+      const clean = normalizeData(next);
+      Object.keys(data).forEach(key => delete data[key]);
+      Object.assign(data, clean);
+      renderForm();
+      updateAll();
+    }
+
+    function collectForm() {
+      data.site.version = "1.0.0";
+      data.site.updatedAt = new Date().toISOString().slice(0, 10);
+      data.theme.fontFamily = fontOptions.has($("themeFont").value) ? $("themeFont").value : "system";
+      data.hero.title = $("heroTitle").value.trim() || DEFAULT_DATA.hero.title;
+      data.hero.subtitle = $("heroSubtitle").value.trim() || DEFAULT_DATA.hero.subtitle;
+      data.hero.image = $("heroImage").value.trim();
+      data.hero.imageAlt = $("heroAlt").value.trim() || DEFAULT_DATA.hero.imageAlt;
+      data.intro.enabled = $("introEnabled").value === "true";
+      data.intro.image = $("introImage").value.trim();
+      data.intro.imageAlt = $("introAlt").value.trim() || DEFAULT_DATA.intro.imageAlt;
+      data.intro.durationMs = Math.min(Math.max(Number($("introDuration").value) || 3000, 400), 10000);
+      data.intro.useSessionSkip = $("introSkip").value === "true";
+      data.footer.title = $("footerTitle").value.trim() || DEFAULT_DATA.footer.title;
+      data.footer.content = $("footerContent").value.trim() || DEFAULT_DATA.footer.content;
+    }
+
+    function renderForm() {
+      $("heroTitle").value = data.hero.title;
+      $("themeFont").value = data.theme.fontFamily;
+      $("heroSubtitle").value = data.hero.subtitle;
+      $("heroImage").value = data.hero.image;
+      $("heroAlt").value = data.hero.imageAlt;
+      $("introEnabled").value = String(data.intro.enabled);
+      $("introImage").value = data.intro.image;
+      $("introAlt").value = data.intro.imageAlt;
+      $("introDuration").value = data.intro.durationMs;
+      $("introSkip").value = String(data.intro.useSessionSkip);
+      $("footerTitle").value = data.footer.title;
+      $("footerContent").value = data.footer.content;
+      renderArticleEditors();
+    }
+
+    function renderArticleEditors() {
+      const root = $("articleEditors");
+      root.textContent = "";
+      data.articles.forEach((article, index) => {
+        const wrap = document.createElement("div");
+        wrap.className = "article-editor";
+        wrap.dataset.index = index;
+
+        const tools = document.createElement("div");
+        tools.className = "article-tools";
+        const title = document.createElement("h3");
+        title.textContent = `아티클 ${index + 1}`;
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        [
+          ["위로", "up"],
+          ["아래로", "down"],
+          ["삭제", "delete"]
+        ].forEach(([label, action]) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = label;
+          btn.dataset.action = action;
+          if (action === "delete") btn.className = "danger";
+          actions.append(btn);
+        });
+        tools.append(title, actions);
+
+        const row1 = document.createElement("div");
+        row1.className = "grid-3";
+        row1.append(
+          makeInput("이모지", article.emoji, "emoji"),
+          makeInput("타이틀", article.title, "title"),
+          makeSelect("글머리 기호", article.bulletStyle, "bulletStyle", [["star", "star: ✦"], ["arrow", "arrow: ▸"], ["dot", "dot: ●"]])
+        );
+
+        const row2 = document.createElement("div");
+        row2.className = "grid-2";
+        row2.append(
+          makeSelect("폰트 크기", article.fontSize, "fontSize", [["small", "small"], ["medium", "medium"], ["large", "large"]]),
+          makeInput("ID", article.id, "id")
+        );
+
+        const content = makeTextarea("본문 내용", article.content.join("\n"), "content");
+        const mini = document.createElement("div");
+        mini.className = "mini-card";
+        mini.append(renderMiniArticle(article));
+
+        wrap.append(tools, row1, row2, content, mini);
+        root.append(wrap);
+      });
+    }
+
+    function makeInput(labelText, value, field) {
+      const label = document.createElement("label");
+      label.textContent = labelText;
+      const input = document.createElement("input");
+      input.value = value;
+      input.dataset.field = field;
+      input.type = "text";
+      label.append(input);
+      return label;
+    }
+
+    function makeTextarea(labelText, value, field) {
+      const label = document.createElement("label");
+      label.textContent = labelText;
+      const input = document.createElement("textarea");
+      input.value = value;
+      input.dataset.field = field;
+      label.append(input);
+      return label;
+    }
+
+    function makeSelect(labelText, value, field, options) {
+      const label = document.createElement("label");
+      label.textContent = labelText;
+      const select = document.createElement("select");
+      select.dataset.field = field;
+      options.forEach(([optionValue, optionText]) => {
+        const option = document.createElement("option");
+        option.value = optionValue;
+        option.textContent = optionText;
+        select.append(option);
+      });
+      select.value = value;
+      label.append(select);
+      return label;
+    }
+
+    function syncArticleField(target) {
+      const editor = target.closest(".article-editor");
+      if (!editor || !target.dataset.field) return;
+      const article = data.articles[Number(editor.dataset.index)];
+      if (!article) return;
+      if (target.dataset.field === "content") {
+        article.content = linesToArray(target.value);
+      } else {
+        article[target.dataset.field] = target.value.trim();
+      }
+      updateEditorMini(editor, article);
+    }
+
+    function updateEditorMini(editor, article) {
+      const mini = editor.querySelector(".mini-card");
+      if (!mini) return;
+      mini.textContent = "";
+      mini.append(renderMiniArticle(article));
+    }
+
+    function renderImagePreview(root, src, alt, fallbackText) {
+      root.textContent = "";
+      if (!src) {
+        root.textContent = fallbackText;
+        return;
+      }
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = alt || "";
+      img.onerror = () => {
+        root.textContent = "이미지를 불러오지 못했습니다. 경로를 확인해주세요.";
+      };
+      root.append(img);
+    }
+
+    function renderMiniArticle(article) {
+      const frag = document.createDocumentFragment();
+      const title = document.createElement("div");
+      title.className = "mini-title";
+      const emoji = document.createElement("span");
+      emoji.textContent = article.emoji || "✦";
+      const textNode = document.createElement("span");
+      textNode.textContent = article.title || "제목 없음";
+      title.append(emoji, textNode);
+      const list = document.createElement("ul");
+      list.className = article.fontSize;
+      article.content.forEach(line => {
+        const li = document.createElement("li");
+        const bullet = document.createElement("span");
+        bullet.textContent = bullets[article.bulletStyle] || bullets.star;
+        const content = document.createElement("span");
+        content.textContent = line;
+        li.append(bullet, content);
+        list.append(li);
+      });
+      frag.append(title, list);
+      return frag;
+    }
+
+    function renderPreview() {
+      const root = $("sitePreview");
+      root.textContent = "";
+      root.style.fontFamily = fontMap[data.theme.fontFamily] || fontMap.system;
+      const hero = document.createElement("section");
+      hero.className = "mini-hero";
+      if (data.hero.image) {
+        const img = document.createElement("img");
+        img.src = data.hero.image;
+        img.alt = data.hero.imageAlt;
+        img.onerror = () => img.remove();
+        hero.append(img);
+      }
+      const heroText = document.createElement("div");
+      const h2 = document.createElement("h2");
+      h2.textContent = data.hero.title;
+      const p = document.createElement("p");
+      p.textContent = data.hero.subtitle;
+      heroText.append(h2, p);
+      hero.append(heroText);
+
+      const main = document.createElement("div");
+      main.className = "mini-main";
+      if (data.articles.length) {
+        data.articles.forEach(article => {
+          const card = document.createElement("div");
+          card.className = "mini-card";
+          card.append(renderMiniArticle(article));
+          main.append(card);
+        });
+      } else {
+        const empty = document.createElement("p");
+        empty.textContent = "아직 등록된 아티클이 없습니다.";
+        main.append(empty);
+      }
+
+      const footer = document.createElement("div");
+      footer.className = "mini-footer";
+      const strong = document.createElement("strong");
+      strong.textContent = data.footer.title;
+      const copy = document.createElement("div");
+      copy.textContent = data.footer.content;
+      footer.append(strong, copy);
+      main.append(footer);
+      root.append(hero, main);
+    }
+
+    function validateData() {
+      const issues = [];
+      if (!data.hero.title.trim()) issues.push("Hero 타이틀이 비어 있습니다.");
+      if (!data.hero.subtitle.trim()) issues.push("Hero 서브 타이틀이 비어 있습니다.");
+      if (!data.articles.length) issues.push("아티클이 하나도 없습니다.");
+      data.articles.forEach((article, index) => {
+        if (!article.title.trim()) issues.push(`아티클 ${index + 1}의 타이틀이 비어 있습니다.`);
+        if (!article.content.length) issues.push(`아티클 ${index + 1}의 본문이 비어 있습니다.`);
+      });
+      if (!data.footer.title.trim()) issues.push("하단 안내 제목이 비어 있습니다.");
+      $("validation").className = issues.length ? "hint error" : "hint ok";
+      $("validation").textContent = issues.length ? `검증 필요: ${issues.join(" ")}` : "검증 결과: data.json으로 내보낼 수 있습니다.";
+      return issues;
+    }
+
+    function updateDirty(isDirty = true) {
+      dirty = isDirty;
+      $("dirtyState").className = dirty ? "dirty" : "ok";
+      $("dirtyState").textContent = dirty ? "아직 내보내지 않은 변경사항이 있습니다" : "내보내기 준비됨";
+    }
+
+    function updateAll(markDirty = true) {
+      collectForm();
+      renderImagePreview($("heroImagePreview"), data.hero.image, data.hero.imageAlt, "대표 이미지 미리보기");
+      renderImagePreview($("introImagePreview"), data.intro.image, data.intro.imageAlt, "인트로 이미지 미리보기");
+      renderPreview();
+      $("jsonPreview").textContent = JSON.stringify(data, null, 2);
+      validateData();
+      updateDirty(markDirty);
+    }
+
+    function setMessage(message, type = "ok") {
+      $("message").className = `hint ${type}`;
+      $("message").textContent = message;
+    }
+
+    function exportJson() {
+      collectForm();
+      validateData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "data.json";
+      document.body.append(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      updateDirty(false);
+      setMessage("data.json 파일을 다운로드했습니다. 이 파일로 GitHub 저장소의 기존 data.json을 교체하세요.");
+    }
+
+    function saveDraft() {
+      collectForm();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      setMessage("임시 저장했습니다. 이 내용은 현재 브라우저에만 저장됩니다.");
+    }
+
+    function loadDraft() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        setMessage("불러올 임시 저장 데이터가 없습니다.", "error");
+        return;
+      }
+      try {
+        replaceData(JSON.parse(raw));
+        updateDirty(true);
+        setMessage("임시 저장 데이터를 불러왔습니다. 운영 반영은 data.json 내보내기 후 GitHub 교체가 필요합니다.");
+      } catch (error) {
+        setMessage("임시 저장 데이터를 읽지 못했습니다.", "error");
+      }
+    }
+
+    function handleImport(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const imported = JSON.parse(String(reader.result));
+          replaceData(imported);
+          updateDirty(true);
+          setMessage("data.json을 불러왔습니다. 필요한 내용을 확인한 뒤 다시 내보낼 수 있습니다.");
+        } catch (error) {
+          setMessage("JSON 형식이 올바르지 않습니다. 파일 내용을 확인해주세요.", "error");
+        }
+      };
+      reader.onerror = () => setMessage("파일을 읽지 못했습니다.", "error");
+      reader.readAsText(file);
+    }
+
+    function addArticle() {
+      data.articles.push({
+        id: `article-${Date.now()}`,
+        emoji: "✦",
+        title: "새 아티클",
+        content: ["새 내용을 입력하세요"],
+        bulletStyle: "star",
+        fontSize: "medium"
+      });
+      renderArticleEditors();
+      updateAll(true);
+    }
+
+    function handleArticleAction(target) {
+      const editor = target.closest(".article-editor");
+      if (!editor || !target.dataset.action) return;
+      const index = Number(editor.dataset.index);
+      if (target.dataset.action === "delete") {
+        if (!confirm("이 아티클을 삭제할까요?")) return;
+        data.articles.splice(index, 1);
+      }
+      if (target.dataset.action === "up" && index > 0) {
+        [data.articles[index - 1], data.articles[index]] = [data.articles[index], data.articles[index - 1]];
+      }
+      if (target.dataset.action === "down" && index < data.articles.length - 1) {
+        [data.articles[index + 1], data.articles[index]] = [data.articles[index], data.articles[index + 1]];
+      }
+      renderArticleEditors();
+      updateAll(true);
+    }
+
+    document.addEventListener("input", event => {
+      if (event.target.closest(".article-editor")) syncArticleField(event.target);
+      updateAll(true);
+    });
+
+    document.addEventListener("change", event => {
+      if (event.target.id === "importFile") {
+        handleImport(event.target.files[0]);
+        event.target.value = "";
+        return;
+      }
+      if (event.target.closest(".article-editor")) syncArticleField(event.target);
+      updateAll(true);
+    });
+
+    $("articleEditors").addEventListener("click", event => handleArticleAction(event.target));
+    $("addArticleBtn").addEventListener("click", addArticle);
+    $("exportBtn").addEventListener("click", exportJson);
+    $("saveDraftBtn").addEventListener("click", saveDraft);
+    $("loadDraftBtn").addEventListener("click", loadDraft);
+    $("resetBtn").addEventListener("click", () => {
+      if (!confirm("입력 중인 내용을 기본값으로 초기화할까요?")) return;
+      replaceData(DEFAULT_DATA);
+      updateDirty(true);
+      setMessage("기본값으로 초기화했습니다.");
+    });
+
+    window.addEventListener("beforeunload", event => {
+      if (!dirty) return;
+      event.preventDefault();
+      event.returnValue = "";
+    });
+
+    replaceData(DEFAULT_DATA);
+    updateDirty(false);
+  </script>
+</body>
+</html>

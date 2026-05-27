@@ -1,0 +1,65 @@
+{
+  "site": {
+    "version": "1.0.0",
+    "updatedAt": "2026-01-01"
+  },
+  "theme": {
+    "fontFamily": "system"
+  },
+  "hero": {
+    "title": "Celestial Vanguard",
+    "subtitle": "빛의 날개 아래, 함께 전장을 지배할 동료를 찾습니다.",
+    "image": "",
+    "imageAlt": "길드 대표 이미지"
+  },
+  "intro": {
+    "enabled": true,
+    "image": "",
+    "imageAlt": "판타지 인트로 이미지",
+    "durationMs": 3000,
+    "useSessionSkip": true
+  },
+  "articles": [
+    {
+      "id": "article-1",
+      "emoji": "⚔️",
+      "title": "길드 소개",
+      "content": [
+        "매일 접속하지 않아도 부담 없는 분위기",
+        "신규, 복귀, 성장 유저 모두 환영",
+        "함께 성장하는 길드 문화"
+      ],
+      "bulletStyle": "star",
+      "fontSize": "medium"
+    },
+    {
+      "id": "article-2",
+      "emoji": "🛡️",
+      "title": "이런 분을 찾습니다",
+      "content": [
+        "기본 매너를 지키는 분",
+        "길드 콘텐츠에 관심 있는 분",
+        "오래 함께할 커뮤니티를 찾는 분"
+      ],
+      "bulletStyle": "arrow",
+      "fontSize": "medium"
+    },
+    {
+      "id": "article-3",
+      "emoji": "✨",
+      "title": "주요 활동",
+      "content": [
+        "길드전",
+        "협동 콘텐츠",
+        "정보 공유",
+        "이벤트 참여"
+      ],
+      "bulletStyle": "dot",
+      "fontSize": "medium"
+    }
+  ],
+  "footer": {
+    "title": "가입 및 문의",
+    "content": "게임 내 길드 검색 또는 운영진에게 문의해주세요."
+  }
+}

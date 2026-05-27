@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Celestial Vanguard</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Gowun+Batang&family=Gowun+Dodum&family=Nanum+Gothic:wght@400;700;800&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700;800&family=Noto+Serif+KR:wght@400;600;700&display=swap");
+
+    :root {
+      --bg: #070707;
+      --panel: rgba(18, 16, 13, .86);
+      --panel-strong: rgba(29, 25, 18, .94);
+      --gold: #d7b45a;
+      --gold-soft: #f4df9a;
+      --text: #f8f1dc;
+      --muted: #c8bfa9;
+      --line: rgba(215, 180, 90, .34);
+      --shadow: 0 24px 70px rgba(0, 0, 0, .55);
+      --site-font: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--bg); color: var(--text); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--site-font);
+      background:
+        radial-gradient(circle at 25% 8%, rgba(242, 218, 139, .12), transparent 28rem),
+        radial-gradient(circle at 78% 20%, rgba(118, 139, 166, .12), transparent 28rem),
+        linear-gradient(180deg, #050505 0%, #12100d 46%, #070707 100%);
+      overflow-x: hidden;
+    }
+
+    body.intro-lock { overflow: hidden; }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+      background-size: 72px 72px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,.75), transparent 70%);
+    }
+
+    .site-shell { opacity: 0; transition: opacity .55s ease; }
+    .site-shell.ready { opacity: 1; }
+
+    .hero {
+      position: relative;
+      min-height: 76vh;
+      display: grid;
+      place-items: end start;
+      padding: clamp(4rem, 9vw, 7.5rem) clamp(1.25rem, 5vw, 5rem);
+      isolation: isolate;
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero-media,
+    .hero-fallback {
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+    }
+
+    .hero-media {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      filter: saturate(.96) contrast(1.08);
+    }
+
+    .hero-fallback {
+      background:
+        linear-gradient(115deg, rgba(0,0,0,.72), rgba(0,0,0,.08) 46%, rgba(0,0,0,.88)),
+        radial-gradient(circle at 70% 26%, rgba(252, 232, 161, .24), transparent 15rem),
+        radial-gradient(circle at 50% 8%, rgba(245, 245, 255, .13), transparent 23rem),
+        linear-gradient(140deg, #080808, #1c1710 47%, #090909);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,.86), rgba(0,0,0,.34) 52%, rgba(0,0,0,.78)),
+        linear-gradient(0deg, rgba(5,5,5,.86), transparent 52%);
+    }
+
+    .hero-content {
+      width: min(820px, 100%);
+      padding-bottom: clamp(1rem, 4vw, 3rem);
+    }
+
+    .guild-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      color: var(--gold-soft);
+      text-transform: uppercase;
+      letter-spacing: 0;
+      font-size: .84rem;
+      border: 1px solid var(--line);
+      padding: .52rem .74rem;
+      background: rgba(5,5,5,.42);
+      box-shadow: inset 0 0 26px rgba(215,180,90,.08);
+    }
+
+    h1 {
+      margin: 1rem 0 .75rem;
+      font-family: var(--site-font);
+      font-size: clamp(3rem, 10vw, 7.75rem);
+      line-height: .92;
+      font-weight: 700;
+      text-shadow: 0 6px 30px rgba(0,0,0,.74), 0 0 24px rgba(215,180,90,.18);
+    }
+
+    .subtitle {
+      max-width: 720px;
+      margin: 0;
+      color: #fff5d8;
+      font-size: clamp(1.08rem, 2.3vw, 1.45rem);
+      line-height: 1.8;
+      text-shadow: 0 4px 18px rgba(0,0,0,.78);
+    }
+
+    main {
+      width: min(1180px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: clamp(2.5rem, 6vw, 5rem) 0;
+    }
+
+    .articles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+      gap: 1rem;
+    }
+
+    .article-card {
+      position: relative;
+      min-height: 240px;
+      padding: 1.35rem;
+      background: linear-gradient(180deg, var(--panel-strong), rgba(12, 11, 10, .92));
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.06);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .article-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(135deg, rgba(244,223,154,.14), transparent 34%);
+    }
+
+    .article-head {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .article-emoji {
+      display: grid;
+      place-items: center;
+      width: 2.6rem;
+      height: 2.6rem;
+      border: 1px solid rgba(244,223,154,.38);
+      background: rgba(255,255,255,.045);
+      border-radius: 8px;
+      font-size: 1.35rem;
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--gold-soft);
+      font-family: var(--site-font);
+      font-size: 1.35rem;
+      line-height: 1.25;
+    }
+
+    .article-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: .74rem;
+      color: var(--muted);
+      position: relative;
+    }
+
+    .article-list li {
+      display: grid;
+      grid-template-columns: 1.3rem 1fr;
+      gap: .35rem;
+      line-height: 1.75;
+      overflow-wrap: anywhere;
+    }
+
+    .bullet { color: var(--gold); text-shadow: 0 0 12px rgba(215,180,90,.28); }
+    .font-small { font-size: .94rem; }
+    .font-medium { font-size: 1.03rem; }
+    .font-large { font-size: 1.15rem; }
+
+    .empty {
+      grid-column: 1 / -1;
+      padding: 2rem;
+      border: 1px dashed var(--line);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .footer-cta {
+      margin-top: clamp(2rem, 6vw, 4rem);
+      padding: clamp(1.3rem, 4vw, 2.2rem);
+      background: rgba(12, 10, 8, .82);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--gold);
+      box-shadow: var(--shadow);
+      border-radius: 8px;
+    }
+
+    .footer-cta h2 { font-size: clamp(1.55rem, 4vw, 2.3rem); }
+    .footer-cta p {
+      margin: .85rem 0 0;
+      color: var(--muted);
+      line-height: 1.85;
+      white-space: pre-wrap;
+    }
+
+    .status {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      color: var(--gold-soft);
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .intro-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: grid;
+      place-items: center;
+      background: #030303;
+      overflow: hidden;
+    }
+
+    .intro-overlay::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 38%, rgba(255,255,255,.2), transparent 12rem),
+        radial-gradient(circle at 50% 50%, rgba(215,180,90,.22), transparent 22rem),
+        linear-gradient(140deg, #020202, #1a1510 48%, #050505);
+      transform: scale(1.04);
+    }
+
+    .intro-image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transform: scale(1.02);
+      animation: introImage var(--intro-duration, 3000ms) ease-in-out forwards;
+    }
+
+    .intro-overlay::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,.82), transparent 44%, rgba(0,0,0,.72)),
+        linear-gradient(0deg, rgba(0,0,0,.86), transparent 50%, rgba(0,0,0,.46));
+    }
+
+    .intro-title {
+      position: relative;
+      z-index: 1;
+      width: min(720px, calc(100% - 2rem));
+      text-align: center;
+      color: var(--gold-soft);
+      font-family: var(--site-font);
+      font-size: clamp(2.2rem, 8vw, 5.6rem);
+      line-height: 1;
+      text-shadow: 0 0 38px rgba(215,180,90,.28), 0 8px 40px rgba(0,0,0,.9);
+      animation: introTitle var(--intro-duration, 3000ms) ease-in-out forwards;
+    }
+
+    .intro-overlay.hiding { animation: introFade .45s ease forwards; }
+
+    @keyframes introImage {
+      0% { opacity: 0; transform: scale(1.03); }
+      22% { opacity: .88; }
+      72% { opacity: .92; }
+      100% { opacity: 0; transform: scale(1.09); }
+    }
+
+    @keyframes introTitle {
+      0% { opacity: 0; transform: translateY(12px); }
+      28%, 72% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-8px); }
+    }
+
+    @keyframes introFade { to { opacity: 0; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .hero { min-height: 68vh; padding-inline: 1rem; }
+      .guild-mark { font-size: .78rem; }
+      main { width: min(100% - 1rem, 1180px); }
+      .article-card { padding: 1rem; min-height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div id="loading" class="status" role="status">길드 정보를 불러오는 중입니다...</div>
+  <div id="app" class="site-shell" hidden>
+    <header id="hero" class="hero"></header>
+    <main>
+      <section id="articles" class="articles" aria-label="길드 소개 글"></section>
+      <section id="footer" class="footer-cta"></section>
+    </main>
+  </div>
+
+  <script>
+    const FALLBACK_DATA = {
+      site: { version: "1.0.0", updatedAt: "2026-01-01" },
+      theme: { fontFamily: "system" },
+      hero: {
+        title: "Celestial Vanguard",
+        subtitle: "빛의 날개 아래, 함께 전장을 지배할 동료를 찾습니다.",
+        image: "",
+        imageAlt: "길드 대표 이미지"
+      },
+      intro: {
+        enabled: true,
+        image: "",
+        imageAlt: "판타지 인트로 이미지",
+        durationMs: 3000,
+        useSessionSkip: true
+      },
+      articles: [
+        {
+          id: "article-1",
+          emoji: "⚔️",
+          title: "길드 소개",
+          content: ["매일 접속하지 않아도 부담 없는 분위기", "신규, 복귀, 성장 유저 모두 환영", "함께 성장하는 길드 문화"],
+          bulletStyle: "star",
+          fontSize: "medium"
+        },
+        {
+          id: "article-2",
+          emoji: "🛡️",
+          title: "이런 분을 찾습니다",
+          content: ["기본 매너를 지키는 분", "길드 콘텐츠에 관심 있는 분", "오래 함께할 커뮤니티를 찾는 분"],
+          bulletStyle: "arrow",
+          fontSize: "medium"
+        },
+        {
+          id: "article-3",
+          emoji: "✨",
+          title: "주요 활동",
+          content: ["길드전", "협동 콘텐츠", "정보 공유", "이벤트 참여"],
+          bulletStyle: "dot",
+          fontSize: "medium"
+        }
+      ],
+      footer: {
+        title: "가입 및 문의",
+        content: "게임 내 길드 검색 또는 운영진에게 문의해주세요."
+      }
+    };
+
+    const bullets = { dot: "●", arrow: "▸", star: "✦" };
+    const fontSizes = new Set(["small", "medium", "large"]);
+    const fontMap = {
+      system: '"Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif',
+      notoSans: '"Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif',
+      notoSerif: '"Noto Serif KR", "Nanum Myeongjo", Georgia, serif',
+      nanumGothic: '"Nanum Gothic", "Noto Sans KR", "Malgun Gothic", sans-serif',
+      nanumMyeongjo: '"Nanum Myeongjo", "Noto Serif KR", Georgia, serif',
+      gowunDodum: '"Gowun Dodum", "Noto Sans KR", "Malgun Gothic", sans-serif',
+      gowunBatang: '"Gowun Batang", "Noto Serif KR", Georgia, serif',
+      doHyeon: '"Do Hyeon", "Noto Sans KR", "Malgun Gothic", sans-serif',
+      blackHan: '"Black Han Sans", "Noto Sans KR", "Malgun Gothic", sans-serif',
+      serif: 'Georgia, "Times New Roman", "Noto Serif KR", serif',
+      clean: '"Segoe UI", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif',
+      rounded: '"Arial Rounded MT Bold", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif'
+    };
+
+    function cleanText(value, fallback = "") {
+      return typeof value === "string" ? value : fallback;
+    }
+
+    function normalizeData(raw) {
+      const data = raw && typeof raw === "object" ? raw : {};
+      const fallback = FALLBACK_DATA;
+      return {
+        site: {
+          version: cleanText(data.site?.version, fallback.site.version),
+          updatedAt: cleanText(data.site?.updatedAt, fallback.site.updatedAt)
+        },
+        theme: {
+          fontFamily: fontMap[data.theme?.fontFamily] ? data.theme.fontFamily : fallback.theme.fontFamily
+        },
+        hero: {
+          title: cleanText(data.hero?.title, fallback.hero.title),
+          subtitle: cleanText(data.hero?.subtitle, fallback.hero.subtitle),
+          image: cleanText(data.hero?.image, ""),
+          imageAlt: cleanText(data.hero?.imageAlt, fallback.hero.imageAlt)
+        },
+        intro: {
+          enabled: typeof data.intro?.enabled === "boolean" ? data.intro.enabled : fallback.intro.enabled,
+          image: cleanText(data.intro?.image, ""),
+          imageAlt: cleanText(data.intro?.imageAlt, fallback.intro.imageAlt),
+          durationMs: Math.min(Math.max(Number(data.intro?.durationMs) || fallback.intro.durationMs, 400), 10000),
+          useSessionSkip: typeof data.intro?.useSessionSkip === "boolean" ? data.intro.useSessionSkip : fallback.intro.useSessionSkip
+        },
+        articles: Array.isArray(data.articles) ? data.articles.map((item, index) => ({
+          id: cleanText(item?.id, `article-${index + 1}`),
+          emoji: cleanText(item?.emoji, "✦"),
+          title: cleanText(item?.title, "제목 없음"),
+          content: Array.isArray(item?.content) ? item.content.filter(line => typeof line === "string" && line.trim()).map(line => line.trim()) : [],
+          bulletStyle: bullets[item?.bulletStyle] ? item.bulletStyle : "star",
+          fontSize: fontSizes.has(item?.fontSize) ? item.fontSize : "medium"
+        })) : fallback.articles,
+        footer: {
+          title: cleanText(data.footer?.title, fallback.footer.title),
+          content: cleanText(data.footer?.content, fallback.footer.content)
+        }
+      };
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.style.setProperty("--site-font", fontMap[theme.fontFamily] || fontMap.system);
+    }
+
+    function addImage(parent, src, alt, className, fallbackClass) {
+      const fallback = document.createElement("div");
+      fallback.className = fallbackClass;
+      parent.append(fallback);
+      if (!src) return;
+      const img = document.createElement("img");
+      img.className = className;
+      img.alt = alt || "";
+      img.src = src;
+      img.onerror = () => img.remove();
+      parent.append(img);
+    }
+
+    function renderHero(hero) {
+      const root = document.getElementById("hero");
+      root.textContent = "";
+      addImage(root, hero.image, hero.imageAlt, "hero-media", "hero-fallback");
+      const content = document.createElement("div");
+      content.className = "hero-content";
+      const mark = document.createElement("div");
+      mark.className = "guild-mark";
+      mark.textContent = "MMORPG Guild Recruitment";
+      const title = document.createElement("h1");
+      title.textContent = hero.title;
+      const subtitle = document.createElement("p");
+      subtitle.className = "subtitle";
+      subtitle.textContent = hero.subtitle;
+      content.append(mark, title, subtitle);
+      root.append(content);
+      document.title = hero.title || "Guild Recruitment";
+    }
+
+    function renderArticles(articles) {
+      const root = document.getElementById("articles");
+      root.textContent = "";
+      if (!articles.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "아직 등록된 홍보 글이 없습니다.";
+        root.append(empty);
+        return;
+      }
+      articles.forEach(article => {
+        const card = document.createElement("article");
+        card.className = "article-card";
+        const head = document.createElement("div");
+        head.className = "article-head";
+        const emoji = document.createElement("div");
+        emoji.className = "article-emoji";
+        emoji.textContent = article.emoji || "✦";
+        const title = document.createElement("h2");
+        title.textContent = article.title || "제목 없음";
+        head.append(emoji, title);
+        const list = document.createElement("ul");
+        list.className = `article-list font-${article.fontSize}`;
+        article.content.forEach(line => {
+          const li = document.createElement("li");
+          const bullet = document.createElement("span");
+          bullet.className = "bullet";
+          bullet.textContent = bullets[article.bulletStyle] || bullets.star;
+          const text = document.createElement("span");
+          text.textContent = line;
+          li.append(bullet, text);
+          list.append(li);
+        });
+        card.append(head, list);
+        root.append(card);
+      });
+    }
+
+    function renderFooter(footer) {
+      const root = document.getElementById("footer");
+      root.textContent = "";
+      const title = document.createElement("h2");
+      title.textContent = footer.title;
+      const body = document.createElement("p");
+      body.textContent = footer.content;
+      root.append(title, body);
+    }
+
+    function showIntro(intro, title) {
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const key = "guild-intro-seen";
+      const navigationType = performance.getEntriesByType("navigation")[0]?.type;
+      const isReload = navigationType === "reload";
+      if (!intro.enabled || (intro.useSessionSkip && !isReload && sessionStorage.getItem(key) === "yes")) return Promise.resolve();
+      document.body.classList.add("intro-lock");
+      const overlay = document.createElement("div");
+      overlay.className = "intro-overlay";
+      overlay.style.setProperty("--intro-duration", `${reduced ? 500 : intro.durationMs}ms`);
+      if (intro.image) {
+        const img = document.createElement("img");
+        img.className = "intro-image";
+        img.alt = intro.imageAlt || "";
+        img.src = intro.image;
+        img.onerror = () => img.remove();
+        overlay.append(img);
+      }
+      const name = document.createElement("div");
+      name.className = "intro-title";
+      name.textContent = title;
+      overlay.append(name);
+      document.body.append(overlay);
+      const duration = reduced ? 500 : intro.durationMs;
+      return new Promise(resolve => {
+        window.setTimeout(() => {
+          overlay.classList.add("hiding");
+          window.setTimeout(() => {
+            overlay.remove();
+            document.body.classList.remove("intro-lock");
+            if (intro.useSessionSkip) sessionStorage.setItem(key, "yes");
+            resolve();
+          }, reduced ? 20 : 460);
+        }, duration);
+      });
+    }
+
+    async function loadData() {
+      try {
+        const response = await fetch("./data.json", { cache: "no-store" });
+        if (!response.ok) throw new Error("data.json fetch failed");
+        return normalizeData(await response.json());
+      } catch (error) {
+        console.warn("data.json을 읽지 못해 기본 데이터를 표시합니다.", error);
+        return normalizeData(FALLBACK_DATA);
+      }
+    }
+
+    (async function init() {
+      const data = await loadData();
+      applyTheme(data.theme);
+      renderHero(data.hero);
+      renderArticles(data.articles);
+      renderFooter(data.footer);
+      document.getElementById("loading").hidden = true;
+      const app = document.getElementById("app");
+      app.hidden = false;
+      await showIntro(data.intro, data.hero.title);
+      app.classList.add("ready");
+    })();
+  </script>
+</body>
+</html>
