@@ -157,6 +157,7 @@
     }
 
     * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
     html { background: var(--bg); color: var(--text); }
     body {
       margin: 0;
@@ -730,7 +731,7 @@
       renderHero(data.hero);
       renderArticles(data.articles);
       renderFooter(data.footer);
-      document.getElementById("loading").hidden = true;
+      document.getElementById("loading").remove();
       const app = document.getElementById("app");
       app.hidden = false;
       await showIntro(data.intro, data.hero.title);
