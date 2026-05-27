@@ -241,7 +241,7 @@
       position: absolute;
       inset: 0;
       z-index: -1;
-      background: linear-gradient(90deg, rgba(0,0,0,.84), rgba(0,0,0,.25), rgba(0,0,0,.78));
+      background: var(--preview-overlay, linear-gradient(90deg, rgba(0,0,0,.84), rgba(0,0,0,.25), rgba(0,0,0,.78)));
     }
 
     .mini-hero h2 { font-size: clamp(2rem, 7vw, 3.8rem); }
@@ -369,6 +369,16 @@
 
       <section class="card">
         <div class="card-head"><h2>전체 디자인</h2></div>
+        <label>전체 테마
+          <select id="themePreset">
+            <option value="celestial">신성한 다크 판타지</option>
+            <option value="apple">Apple 갤러리</option>
+            <option value="bugatti">Bugatti 블랙 럭셔리</option>
+            <option value="notion">Notion 컬러 워크스페이스</option>
+            <option value="claude">Claude 크림 에디토리얼</option>
+          </select>
+        </label>
+        <p class="hint">사이트 전체 색상, 카드 모양, Hero 분위기, 여백감을 바꿉니다.</p>
         <label>전체 폰트
           <select id="themeFont">
             <option value="system">기본 고딕</option>
@@ -474,7 +484,7 @@
     const STORAGE_KEY = "guild-promo-draft";
     const DEFAULT_DATA = {
       site: { version: "1.0.0", updatedAt: "2026-01-01" },
-      theme: { fontFamily: "system" },
+      theme: { fontFamily: "system", preset: "celestial" },
       hero: {
         title: "Celestial Vanguard",
         subtitle: "빛의 날개 아래, 함께 전장을 지배할 동료를 찾습니다.",
@@ -523,6 +533,7 @@
     const bullets = { dot: "●", arrow: "▸", star: "✦" };
     const fontSizes = new Set(["small", "medium", "large"]);
     const fontOptions = new Set(["system", "notoSans", "notoSerif", "nanumGothic", "nanumMyeongjo", "gowunDodum", "gowunBatang", "doHyeon", "blackHan", "serif", "clean", "rounded"]);
+    const themePresets = new Set(["celestial", "apple", "bugatti", "notion", "claude"]);
     const fontMap = {
       system: '"Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif',
       notoSans: '"Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif',
@@ -536,6 +547,76 @@
       serif: 'Georgia, "Times New Roman", "Noto Serif KR", serif',
       clean: '"Segoe UI", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif',
       rounded: '"Arial Rounded MT Bold", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif'
+    };
+    const previewThemes = {
+      celestial: {
+        bg: "#070707",
+        hero: "radial-gradient(circle at 70% 24%, rgba(244,223,154,.2), transparent 9rem), linear-gradient(135deg, #070707, #241d12 48%, #080808)",
+        overlay: "linear-gradient(90deg, rgba(0,0,0,.84), rgba(0,0,0,.25), rgba(0,0,0,.78))",
+        text: "#f7eed7",
+        muted: "#c8bfa9",
+        accent: "#f1dc95",
+        card: "rgba(25,22,17,.92)",
+        line: "rgba(215,180,90,.34)",
+        radius: "8px",
+        align: "end",
+        center: "left"
+      },
+      apple: {
+        bg: "#f5f5f7",
+        hero: "linear-gradient(180deg, #ffffff, #f5f5f7)",
+        overlay: "linear-gradient(180deg, rgba(255,255,255,.15), rgba(255,255,255,.72))",
+        text: "#1d1d1f",
+        muted: "#333333",
+        accent: "#0066cc",
+        card: "#ffffff",
+        line: "rgba(0,0,0,.08)",
+        radius: "18px",
+        align: "center",
+        center: "center"
+      },
+      bugatti: {
+        bg: "#000000",
+        hero: "linear-gradient(180deg, #000000, #111111)",
+        overlay: "linear-gradient(90deg, rgba(0,0,0,.8), rgba(0,0,0,.18), rgba(0,0,0,.86))",
+        text: "#ffffff",
+        muted: "#cccccc",
+        accent: "#ffffff",
+        card: "#0d0d0d",
+        line: "#262626",
+        radius: "0",
+        align: "end",
+        center: "left",
+        uppercase: true,
+        spacing: ".08em"
+      },
+      notion: {
+        bg: "#ffffff",
+        hero: "radial-gradient(circle at 18% 24%, #ffd66b 0 12px, transparent 13px), radial-gradient(circle at 82% 22%, #ff8a65 0 10px, transparent 11px), linear-gradient(180deg, #10162f, #182044)",
+        overlay: "linear-gradient(180deg, rgba(16,22,47,.08), rgba(16,22,47,.24))",
+        text: "#111111",
+        muted: "#4f4a45",
+        accent: "#6c47ff",
+        card: "#ffffff",
+        line: "#dedbd6",
+        radius: "12px",
+        align: "center",
+        center: "center",
+        heroText: "#ffffff"
+      },
+      claude: {
+        bg: "#faf9f5",
+        hero: "radial-gradient(circle at 78% 24%, rgba(204,120,92,.2), transparent 9rem), linear-gradient(135deg, #faf9f5, #efe9de)",
+        overlay: "linear-gradient(90deg, rgba(250,249,245,.08), rgba(250,249,245,.5))",
+        text: "#141413",
+        muted: "#3d3d3a",
+        accent: "#cc785c",
+        card: "#efe9de",
+        line: "#e6dfd8",
+        radius: "12px",
+        align: "end",
+        center: "left"
+      }
     };
     const data = structuredClone(DEFAULT_DATA);
     let dirty = false;
@@ -558,7 +639,8 @@
           updatedAt: text(source.site?.updatedAt, new Date().toISOString().slice(0, 10))
         },
         theme: {
-          fontFamily: fontOptions.has(source.theme?.fontFamily) ? source.theme.fontFamily : DEFAULT_DATA.theme.fontFamily
+          fontFamily: fontOptions.has(source.theme?.fontFamily) ? source.theme.fontFamily : DEFAULT_DATA.theme.fontFamily,
+          preset: themePresets.has(source.theme?.preset) ? source.theme.preset : DEFAULT_DATA.theme.preset
         },
         hero: {
           title: text(source.hero?.title, DEFAULT_DATA.hero.title),
@@ -600,6 +682,7 @@
       data.site.version = "1.0.0";
       data.site.updatedAt = new Date().toISOString().slice(0, 10);
       data.theme.fontFamily = fontOptions.has($("themeFont").value) ? $("themeFont").value : "system";
+      data.theme.preset = themePresets.has($("themePreset").value) ? $("themePreset").value : "celestial";
       data.hero.title = $("heroTitle").value.trim() || DEFAULT_DATA.hero.title;
       data.hero.subtitle = $("heroSubtitle").value.trim() || DEFAULT_DATA.hero.subtitle;
       data.hero.image = $("heroImage").value.trim();
@@ -615,6 +698,7 @@
 
     function renderForm() {
       $("heroTitle").value = data.hero.title;
+      $("themePreset").value = data.theme.preset;
       $("themeFont").value = data.theme.fontFamily;
       $("heroSubtitle").value = data.hero.subtitle;
       $("heroImage").value = data.hero.image;
@@ -782,8 +866,16 @@
       const root = $("sitePreview");
       root.textContent = "";
       root.style.fontFamily = fontMap[data.theme.fontFamily] || fontMap.system;
+      const theme = previewThemes[data.theme.preset] || previewThemes.celestial;
+      root.style.background = theme.bg;
+      root.style.color = theme.text;
+      root.style.borderColor = theme.line;
       const hero = document.createElement("section");
       hero.className = "mini-hero";
+      hero.style.background = theme.hero;
+      hero.style.setProperty("--preview-overlay", theme.overlay);
+      hero.style.alignItems = theme.align;
+      hero.style.textAlign = theme.center;
       if (data.hero.image) {
         const img = document.createElement("img");
         img.src = data.hero.image;
@@ -792,19 +884,29 @@
         hero.append(img);
       }
       const heroText = document.createElement("div");
+      heroText.style.position = "relative";
+      heroText.style.zIndex = "1";
       const h2 = document.createElement("h2");
       h2.textContent = data.hero.title;
+      h2.style.color = theme.heroText || theme.text;
+      h2.style.letterSpacing = theme.spacing || "0";
+      h2.style.textTransform = theme.uppercase ? "uppercase" : "none";
       const p = document.createElement("p");
       p.textContent = data.hero.subtitle;
+      p.style.color = theme.heroText || theme.muted;
       heroText.append(h2, p);
       hero.append(heroText);
 
       const main = document.createElement("div");
       main.className = "mini-main";
+      main.style.background = theme.bg;
       if (data.articles.length) {
         data.articles.forEach(article => {
           const card = document.createElement("div");
           card.className = "mini-card";
+          card.style.background = theme.card;
+          card.style.borderColor = theme.line;
+          card.style.borderRadius = theme.radius;
           card.append(renderMiniArticle(article));
           main.append(card);
         });
@@ -816,6 +918,9 @@
 
       const footer = document.createElement("div");
       footer.className = "mini-footer";
+      footer.style.background = data.theme.preset === "claude" ? "#181715" : theme.card;
+      footer.style.color = data.theme.preset === "claude" ? "#faf9f5" : theme.text;
+      footer.style.borderLeftColor = theme.accent;
       const strong = document.createElement("strong");
       strong.textContent = data.footer.title;
       const copy = document.createElement("div");

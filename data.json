@@ -4,7 +4,8 @@
     "updatedAt": "2026-01-01"
   },
   "theme": {
-    "fontFamily": "system"
+    "fontFamily": "system",
+    "preset": "celestial"
   },
   "hero": {
     "title": "Celestial Vanguard",
