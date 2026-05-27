@@ -402,7 +402,7 @@
         <div class="card-head"><h2>Hero 영역</h2></div>
         <div class="grid-2">
           <label>메인 타이틀
-            <input id="heroTitle" type="text">
+            <textarea id="heroTitle" rows="3" placeholder="줄바꿈이 필요하면 Enter를 누르세요"></textarea>
           </label>
           <label>대표 이미지 alt 텍스트
             <input id="heroAlt" type="text">
@@ -413,6 +413,17 @@
         </label>
         <label>대표 이미지 URL 또는 경로
           <input id="heroImage" type="text" placeholder="assets/hero.png 또는 https://example.com/image.png">
+        </label>
+        <label>대표 이미지 위치
+          <select id="heroImagePosition">
+            <option value="center top">위쪽을 더 보여주기</option>
+            <option value="center 25%">약간 위로 올리기</option>
+            <option value="center center">가운데 기준</option>
+            <option value="center 65%">약간 아래로 내리기</option>
+            <option value="center bottom">아래쪽을 더 보여주기</option>
+            <option value="left center">왼쪽 기준</option>
+            <option value="right center">오른쪽 기준</option>
+          </select>
         </label>
         <p class="hint">비어 있거나 로딩에 실패하면 금빛 판타지 fallback 배경이 표시됩니다.</p>
         <div id="heroImagePreview" class="image-preview">대표 이미지 미리보기</div>
@@ -489,6 +500,7 @@
         title: "Celestial Vanguard",
         subtitle: "빛의 날개 아래, 함께 전장을 지배할 동료를 찾습니다.",
         image: "",
+        imagePosition: "center center",
         imageAlt: "길드 대표 이미지"
       },
       intro: {
@@ -534,6 +546,7 @@
     const fontSizes = new Set(["small", "medium", "large"]);
     const fontOptions = new Set(["system", "notoSans", "notoSerif", "nanumGothic", "nanumMyeongjo", "gowunDodum", "gowunBatang", "doHyeon", "blackHan", "serif", "clean", "rounded"]);
     const themePresets = new Set(["celestial", "apple", "bugatti", "notion", "claude"]);
+    const imagePositions = new Set(["center top", "center 25%", "center center", "center 65%", "center bottom", "left center", "right center"]);
     const fontMap = {
       system: '"Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif',
       notoSans: '"Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif',
@@ -646,6 +659,7 @@
           title: text(source.hero?.title, DEFAULT_DATA.hero.title),
           subtitle: text(source.hero?.subtitle, DEFAULT_DATA.hero.subtitle),
           image: text(source.hero?.image, ""),
+          imagePosition: imagePositions.has(source.hero?.imagePosition) ? source.hero.imagePosition : DEFAULT_DATA.hero.imagePosition,
           imageAlt: text(source.hero?.imageAlt, DEFAULT_DATA.hero.imageAlt)
         },
         intro: {
@@ -686,6 +700,7 @@
       data.hero.title = $("heroTitle").value.trim() || DEFAULT_DATA.hero.title;
       data.hero.subtitle = $("heroSubtitle").value.trim() || DEFAULT_DATA.hero.subtitle;
       data.hero.image = $("heroImage").value.trim();
+      data.hero.imagePosition = imagePositions.has($("heroImagePosition").value) ? $("heroImagePosition").value : DEFAULT_DATA.hero.imagePosition;
       data.hero.imageAlt = $("heroAlt").value.trim() || DEFAULT_DATA.hero.imageAlt;
       data.intro.enabled = $("introEnabled").value === "true";
       data.intro.image = $("introImage").value.trim();
@@ -702,6 +717,7 @@
       $("themeFont").value = data.theme.fontFamily;
       $("heroSubtitle").value = data.hero.subtitle;
       $("heroImage").value = data.hero.image;
+      $("heroImagePosition").value = data.hero.imagePosition;
       $("heroAlt").value = data.hero.imageAlt;
       $("introEnabled").value = String(data.intro.enabled);
       $("introImage").value = data.intro.image;
@@ -880,6 +896,7 @@
         const img = document.createElement("img");
         img.src = data.hero.image;
         img.alt = data.hero.imageAlt;
+        img.style.objectPosition = data.hero.imagePosition;
         img.onerror = () => img.remove();
         hero.append(img);
       }

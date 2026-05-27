@@ -249,6 +249,7 @@
       font-weight: var(--hero-title-weight);
       letter-spacing: var(--hero-title-spacing);
       text-transform: var(--hero-title-transform);
+      white-space: pre-line;
       text-shadow: 0 6px 30px rgba(0,0,0,.74), 0 0 24px rgba(215,180,90,.18);
     }
 
@@ -483,6 +484,7 @@
         title: "Celestial Vanguard",
         subtitle: "빛의 날개 아래, 함께 전장을 지배할 동료를 찾습니다.",
         image: "",
+        imagePosition: "center center",
         imageAlt: "길드 대표 이미지"
       },
       intro: {
@@ -541,6 +543,7 @@
       rounded: '"Arial Rounded MT Bold", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif'
     };
     const themePresets = new Set(["celestial", "apple", "bugatti", "notion", "claude"]);
+    const imagePositions = new Set(["center top", "center 25%", "center center", "center 65%", "center bottom", "left center", "right center"]);
 
     function cleanText(value, fallback = "") {
       return typeof value === "string" ? value : fallback;
@@ -562,6 +565,7 @@
           title: cleanText(data.hero?.title, fallback.hero.title),
           subtitle: cleanText(data.hero?.subtitle, fallback.hero.subtitle),
           image: cleanText(data.hero?.image, ""),
+          imagePosition: imagePositions.has(data.hero?.imagePosition) ? data.hero.imagePosition : fallback.hero.imagePosition,
           imageAlt: cleanText(data.hero?.imageAlt, fallback.hero.imageAlt)
         },
         intro: {
@@ -591,7 +595,7 @@
       document.body.dataset.theme = theme.preset || "celestial";
     }
 
-    function addImage(parent, src, alt, className, fallbackClass) {
+    function addImage(parent, src, alt, className, fallbackClass, imagePosition = "center center") {
       const fallback = document.createElement("div");
       fallback.className = fallbackClass;
       parent.append(fallback);
@@ -600,6 +604,7 @@
       img.className = className;
       img.alt = alt || "";
       img.src = src;
+      img.style.objectPosition = imagePosition;
       img.onerror = () => img.remove();
       parent.append(img);
     }
@@ -607,7 +612,7 @@
     function renderHero(hero) {
       const root = document.getElementById("hero");
       root.textContent = "";
-      addImage(root, hero.image, hero.imageAlt, "hero-media", "hero-fallback");
+      addImage(root, hero.image, hero.imageAlt, "hero-media", "hero-fallback", hero.imagePosition);
       const content = document.createElement("div");
       content.className = "hero-content";
       const mark = document.createElement("div");
