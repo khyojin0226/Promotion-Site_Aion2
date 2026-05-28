@@ -233,14 +233,27 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      z-index: -3;
+    }
+
+    .image-preview img { z-index: 0; }
+
+    .mini-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
       z-index: -2;
+      background: var(--preview-art, none) center / cover no-repeat;
+      opacity: var(--preview-art-opacity, .25);
+      mix-blend-mode: var(--preview-art-blend, screen);
+      pointer-events: none;
     }
 
     .mini-hero::after {
       content: "";
       position: absolute;
       inset: 0;
-      z-index: -1;
+      z-index: 0;
       background: var(--preview-overlay, linear-gradient(90deg, rgba(0,0,0,.84), rgba(0,0,0,.25), rgba(0,0,0,.78)));
     }
 
@@ -376,9 +389,10 @@
             <option value="bugatti">Bugatti 블랙 럭셔리</option>
             <option value="notion">Notion 컬러 워크스페이스</option>
             <option value="claude">Claude 크림 에디토리얼</option>
+            <option value="moonlight">문라이트 드림</option>
           </select>
         </label>
-        <p class="hint">사이트 전체 색상, 카드 모양, Hero 분위기, 여백감을 바꿉니다.</p>
+        <p class="hint">사이트 전체 색상, 카드 모양, 메인 화면 분위기, 여백감을 바꿉니다.</p>
         <label>전체 폰트
           <select id="themeFont">
             <option value="system">기본 고딕</option>
@@ -399,13 +413,35 @@
       </section>
 
       <section class="card">
-        <div class="card-head"><h2>Hero 영역</h2></div>
+        <div class="card-head"><h2>메인 타이틀 영역</h2></div>
+        <div class="grid-2">
+          <label>메인 타이틀 상단 작은 문구
+            <input id="heroLabel" type="text" placeholder="예: MMORPG Guild Recruitment">
+          </label>
+        </div>
         <div class="grid-2">
           <label>메인 타이틀
             <textarea id="heroTitle" rows="3" placeholder="줄바꿈이 필요하면 Enter를 누르세요"></textarea>
           </label>
+          <label>메인 타이틀 글씨 크기
+            <select id="heroTitleSize">
+              <option value="small">작게</option>
+              <option value="medium">보통</option>
+              <option value="large">크게</option>
+              <option value="xlarge">아주 크게</option>
+            </select>
+          </label>
+        </div>
+        <div class="grid-2">
           <label>대표 이미지 alt 텍스트
             <input id="heroAlt" type="text">
+          </label>
+          <label>메인 타이틀 위치
+            <select id="heroContentPosition">
+              <option value="default">기본 위치</option>
+              <option value="lower">조금 아래로</option>
+              <option value="bottom">이미지 아래로 분리</option>
+            </select>
           </label>
         </div>
         <label>서브 타이틀
@@ -446,6 +482,18 @@
           </label>
         </div>
         <div class="grid-2">
+          <label>인트로 문구
+            <textarea id="introTitle" rows="3" placeholder="줄바꿈이 필요하면 Enter를 누르세요"></textarea>
+          </label>
+          <label>인트로 문구 정렬
+            <select id="introTextAlign">
+              <option value="center">가운데 정렬</option>
+              <option value="left">왼쪽 정렬</option>
+              <option value="right">오른쪽 정렬</option>
+            </select>
+          </label>
+        </div>
+        <div class="grid-2">
           <label>인트로 지속 시간(ms)
             <input id="introDuration" type="number" min="400" max="10000" step="100">
           </label>
@@ -465,8 +513,41 @@
           <h2>중앙 아티클 영역</h2>
           <button id="addArticleBtn" class="primary" type="button">아티클 추가</button>
         </div>
-        <p class="hint">본문은 한 줄이 bullet 하나입니다. 빈 줄은 내보낼 때 자동으로 제외됩니다.</p>
+        <label>새 아티클 기본 배치
+          <select id="articleColumns">
+            <option value="1">한 줄에 1개</option>
+            <option value="2">한 줄에 2개</option>
+          </select>
+        </label>
+        <p class="hint">본문은 한 줄이 bullet 하나입니다. 각 아티클의 배치는 아티클별 `아티클 배치`에서 따로 바꿀 수 있습니다.</p>
         <div id="articleEditors"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>갤러리 영역</h2>
+          <button id="addGalleryImageBtn" class="primary" type="button">사진 추가</button>
+        </div>
+        <div class="grid-2">
+          <label>갤러리 사용
+            <select id="galleryEnabled">
+              <option value="true">사용</option>
+              <option value="false">사용 안 함</option>
+            </select>
+          </label>
+          <label>한 줄 사진 개수
+            <select id="galleryColumns">
+              <option value="1">한 줄에 1개</option>
+              <option value="2">한 줄에 2개</option>
+              <option value="3">한 줄에 3개</option>
+            </select>
+          </label>
+        </div>
+        <label>갤러리 제목
+          <input id="galleryTitle" type="text">
+        </label>
+        <p class="hint">사진은 assets 폴더에 넣고 `assets/gallery-1.png`처럼 경로를 입력하세요. GIF도 사용할 수 있습니다.</p>
+        <div id="galleryEditors"></div>
       </section>
 
       <section class="card">
@@ -477,6 +558,14 @@
         <label>안내 본문
           <textarea id="footerContent"></textarea>
         </label>
+        <label>하단 이미지 URL 또는 경로
+          <input id="footerImage" type="text" placeholder="assets/footer.png 또는 외부 이미지 URL">
+        </label>
+        <label>하단 이미지 alt 텍스트
+          <input id="footerAlt" type="text">
+        </label>
+        <p class="hint">이미지 경로를 비워두면 하단 안내 이미지가 표시되지 않습니다.</p>
+        <div id="footerImagePreview" class="image-preview">하단 이미지 미리보기</div>
       </section>
 
       <section class="card">
@@ -496,8 +585,12 @@
     const DEFAULT_DATA = {
       site: { version: "1.0.0", updatedAt: "2026-01-01" },
       theme: { fontFamily: "system", preset: "celestial" },
+      layout: { articleColumns: 2 },
       hero: {
         title: "Celestial Vanguard",
+        label: "MMORPG Guild Recruitment",
+        contentPosition: "bottom",
+        titleSize: "large",
         subtitle: "빛의 날개 아래, 함께 전장을 지배할 동료를 찾습니다.",
         image: "",
         imagePosition: "center center",
@@ -507,6 +600,8 @@
         enabled: true,
         image: "",
         imageAlt: "판타지 인트로 이미지",
+        title: "Celestial Vanguard",
+        textAlign: "center",
         durationMs: 3000,
         useSessionSkip: true
       },
@@ -517,7 +612,8 @@
           title: "길드 소개",
           content: ["매일 접속하지 않아도 부담 없는 분위기", "신규, 복귀, 성장 유저 모두 환영", "함께 성장하는 길드 문화"],
           bulletStyle: "star",
-          fontSize: "medium"
+          fontSize: "medium",
+          width: "half"
         },
         {
           id: "article-2",
@@ -525,7 +621,8 @@
           title: "이런 분을 찾습니다",
           content: ["기본 매너를 지키는 분", "길드 콘텐츠에 관심 있는 분", "오래 함께할 커뮤니티를 찾는 분"],
           bulletStyle: "arrow",
-          fontSize: "medium"
+          fontSize: "medium",
+          width: "half"
         },
         {
           id: "article-3",
@@ -533,20 +630,40 @@
           title: "주요 활동",
           content: ["길드전", "협동 콘텐츠", "정보 공유", "이벤트 참여"],
           bulletStyle: "dot",
-          fontSize: "medium"
+          fontSize: "medium",
+          width: "half"
         }
       ],
+      gallery: {
+        enabled: false,
+        title: "갤러리",
+        columns: 2,
+        images: []
+      },
       footer: {
         title: "가입 및 문의",
-        content: "게임 내 길드 검색 또는 운영진에게 문의해주세요."
+        content: "게임 내 길드 검색 또는 운영진에게 문의해주세요.",
+        image: "",
+        imageAlt: "하단 안내 이미지"
       }
     };
 
-    const bullets = { dot: "●", arrow: "▸", star: "✦" };
+    const bullets = { dot: "●", arrow: "▸", star: "✦", none: "" };
     const fontSizes = new Set(["small", "medium", "large"]);
+    const articleColumns = new Set([1, 2]);
+    const galleryColumns = new Set([1, 2, 3]);
     const fontOptions = new Set(["system", "notoSans", "notoSerif", "nanumGothic", "nanumMyeongjo", "gowunDodum", "gowunBatang", "doHyeon", "blackHan", "serif", "clean", "rounded"]);
-    const themePresets = new Set(["celestial", "apple", "bugatti", "notion", "claude"]);
+    const themePresets = new Set(["celestial", "apple", "bugatti", "notion", "claude", "moonlight"]);
     const imagePositions = new Set(["center top", "center 25%", "center center", "center 65%", "center bottom", "left center", "right center"]);
+    const heroContentPositions = new Set(["default", "lower", "bottom"]);
+    const heroTitleSizes = new Set(["small", "medium", "large", "xlarge"]);
+    const heroTitleSizeMap = {
+      small: "clamp(1.6rem, 5vw, 2.55rem)",
+      medium: "clamp(1.9rem, 6vw, 3.1rem)",
+      large: "clamp(2.2rem, 7vw, 3.8rem)",
+      xlarge: "clamp(2.45rem, 8vw, 4.4rem)"
+    };
+    const introTextAligns = new Set(["left", "center", "right"]);
     const fontMap = {
       system: '"Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif',
       notoSans: '"Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif',
@@ -564,7 +681,10 @@
     const previewThemes = {
       celestial: {
         bg: "#070707",
-        hero: "radial-gradient(circle at 70% 24%, rgba(244,223,154,.2), transparent 9rem), linear-gradient(135deg, #070707, #241d12 48%, #080808)",
+        hero: "linear-gradient(135deg, #070707, #241d12 48%, #080808)",
+        art: "url('assets/themes/celestial/hero-bg.png')",
+        artOpacity: ".32",
+        artBlend: "screen",
         overlay: "linear-gradient(90deg, rgba(0,0,0,.84), rgba(0,0,0,.25), rgba(0,0,0,.78))",
         text: "#f7eed7",
         muted: "#c8bfa9",
@@ -578,6 +698,9 @@
       apple: {
         bg: "#f5f5f7",
         hero: "linear-gradient(180deg, #ffffff, #f5f5f7)",
+        art: "url('assets/themes/minimal-gallery/hero-bg.png')",
+        artOpacity: ".25",
+        artBlend: "multiply",
         overlay: "linear-gradient(180deg, rgba(255,255,255,.15), rgba(255,255,255,.72))",
         text: "#1d1d1f",
         muted: "#333333",
@@ -591,6 +714,9 @@
       bugatti: {
         bg: "#000000",
         hero: "linear-gradient(180deg, #000000, #111111)",
+        art: "url('assets/themes/black-luxury/hero-bg.png')",
+        artOpacity: ".38",
+        artBlend: "screen",
         overlay: "linear-gradient(90deg, rgba(0,0,0,.8), rgba(0,0,0,.18), rgba(0,0,0,.86))",
         text: "#ffffff",
         muted: "#cccccc",
@@ -605,7 +731,10 @@
       },
       notion: {
         bg: "#ffffff",
-        hero: "radial-gradient(circle at 18% 24%, #ffd66b 0 12px, transparent 13px), radial-gradient(circle at 82% 22%, #ff8a65 0 10px, transparent 11px), linear-gradient(180deg, #10162f, #182044)",
+        hero: "linear-gradient(180deg, #10162f, #182044)",
+        art: "url('assets/themes/color-workspace/hero-bg.png')",
+        artOpacity: ".32",
+        artBlend: "normal",
         overlay: "linear-gradient(180deg, rgba(16,22,47,.08), rgba(16,22,47,.24))",
         text: "#111111",
         muted: "#4f4a45",
@@ -619,7 +748,10 @@
       },
       claude: {
         bg: "#faf9f5",
-        hero: "radial-gradient(circle at 78% 24%, rgba(204,120,92,.2), transparent 9rem), linear-gradient(135deg, #faf9f5, #efe9de)",
+        hero: "linear-gradient(135deg, #faf9f5, #efe9de)",
+        art: "url('assets/themes/cream-editorial/hero-bg.png')",
+        artOpacity: ".24",
+        artBlend: "multiply",
         overlay: "linear-gradient(90deg, rgba(250,249,245,.08), rgba(250,249,245,.5))",
         text: "#141413",
         muted: "#3d3d3a",
@@ -629,6 +761,23 @@
         radius: "12px",
         align: "end",
         center: "left"
+      },
+      moonlight: {
+        bg: "#111528",
+        hero: "linear-gradient(180deg, #151a34, #0f1126)",
+        art: "url('assets/themes/moonlight-dream/hero-bg.png')",
+        artOpacity: ".38",
+        artBlend: "screen",
+        overlay: "linear-gradient(180deg, rgba(17,21,40,.12), rgba(17,21,40,.44))",
+        text: "#f7f4ff",
+        muted: "#cfc7e9",
+        accent: "#d9cdf7",
+        card: "rgba(32,36,65,.9)",
+        line: "rgba(221,211,255,.3)",
+        radius: "16px",
+        align: "center",
+        center: "center",
+        heroText: "#f7f4ff"
       }
     };
     const data = structuredClone(DEFAULT_DATA);
@@ -655,8 +804,14 @@
           fontFamily: fontOptions.has(source.theme?.fontFamily) ? source.theme.fontFamily : DEFAULT_DATA.theme.fontFamily,
           preset: themePresets.has(source.theme?.preset) ? source.theme.preset : DEFAULT_DATA.theme.preset
         },
+        layout: {
+          articleColumns: articleColumns.has(Number(source.layout?.articleColumns)) ? Number(source.layout.articleColumns) : DEFAULT_DATA.layout.articleColumns
+        },
         hero: {
           title: text(source.hero?.title, DEFAULT_DATA.hero.title),
+          label: text(source.hero?.label, DEFAULT_DATA.hero.label),
+          contentPosition: heroContentPositions.has(source.hero?.contentPosition) ? source.hero.contentPosition : DEFAULT_DATA.hero.contentPosition,
+          titleSize: heroTitleSizes.has(source.hero?.titleSize) ? source.hero.titleSize : DEFAULT_DATA.hero.titleSize,
           subtitle: text(source.hero?.subtitle, DEFAULT_DATA.hero.subtitle),
           image: text(source.hero?.image, ""),
           imagePosition: imagePositions.has(source.hero?.imagePosition) ? source.hero.imagePosition : DEFAULT_DATA.hero.imagePosition,
@@ -666,20 +821,35 @@
           enabled: typeof source.intro?.enabled === "boolean" ? source.intro.enabled : DEFAULT_DATA.intro.enabled,
           image: text(source.intro?.image, ""),
           imageAlt: text(source.intro?.imageAlt, DEFAULT_DATA.intro.imageAlt),
+          title: text(source.intro?.title, source.hero?.title || DEFAULT_DATA.intro.title),
+          textAlign: introTextAligns.has(source.intro?.textAlign) ? source.intro.textAlign : DEFAULT_DATA.intro.textAlign,
           durationMs: Math.min(Math.max(Number(source.intro?.durationMs) || 3000, 400), 10000),
           useSessionSkip: typeof source.intro?.useSessionSkip === "boolean" ? source.intro.useSessionSkip : DEFAULT_DATA.intro.useSessionSkip
         },
         articles: Array.isArray(source.articles) ? source.articles.map((item, index) => ({
           id: text(item?.id, `article-${Date.now()}-${index}`),
-          emoji: text(item?.emoji, "✦"),
+          emoji: text(item?.emoji, ""),
           title: text(item?.title, "제목 없음"),
           content: Array.isArray(item?.content) ? item.content.filter(line => typeof line === "string" && line.trim()).map(line => line.trim()) : [],
-          bulletStyle: bullets[item?.bulletStyle] ? item.bulletStyle : "star",
-          fontSize: fontSizes.has(item?.fontSize) ? item.fontSize : "medium"
+          bulletStyle: Object.hasOwn(bullets, item?.bulletStyle) ? item.bulletStyle : "star",
+          fontSize: fontSizes.has(item?.fontSize) ? item.fontSize : "medium",
+          width: item?.width === "full" || Number(source.layout?.articleColumns) === 1 ? "full" : "half"
         })) : structuredClone(DEFAULT_DATA.articles),
+        gallery: {
+          enabled: typeof source.gallery?.enabled === "boolean" ? source.gallery.enabled : DEFAULT_DATA.gallery.enabled,
+          title: text(source.gallery?.title, DEFAULT_DATA.gallery.title),
+          columns: galleryColumns.has(Number(source.gallery?.columns)) ? Number(source.gallery.columns) : DEFAULT_DATA.gallery.columns,
+          images: Array.isArray(source.gallery?.images) ? source.gallery.images.map((item, index) => ({
+            id: text(item?.id, `gallery-${Date.now()}-${index}`),
+            src: text(item?.src, ""),
+            alt: text(item?.alt, "갤러리 이미지")
+          })).filter(item => item.src || item.alt) : []
+        },
         footer: {
           title: text(source.footer?.title, DEFAULT_DATA.footer.title),
-          content: text(source.footer?.content, DEFAULT_DATA.footer.content)
+          content: text(source.footer?.content, DEFAULT_DATA.footer.content),
+          image: text(source.footer?.image, ""),
+          imageAlt: text(source.footer?.imageAlt, DEFAULT_DATA.footer.imageAlt)
         }
       };
     }
@@ -697,36 +867,59 @@
       data.site.updatedAt = new Date().toISOString().slice(0, 10);
       data.theme.fontFamily = fontOptions.has($("themeFont").value) ? $("themeFont").value : "system";
       data.theme.preset = themePresets.has($("themePreset").value) ? $("themePreset").value : "celestial";
+      data.layout.articleColumns = articleColumns.has(Number($("articleColumns").value)) ? Number($("articleColumns").value) : DEFAULT_DATA.layout.articleColumns;
       data.hero.title = $("heroTitle").value.trim() || DEFAULT_DATA.hero.title;
+      data.hero.label = $("heroLabel").value.trim() || DEFAULT_DATA.hero.label;
       data.hero.subtitle = $("heroSubtitle").value.trim() || DEFAULT_DATA.hero.subtitle;
       data.hero.image = $("heroImage").value.trim();
       data.hero.imagePosition = imagePositions.has($("heroImagePosition").value) ? $("heroImagePosition").value : DEFAULT_DATA.hero.imagePosition;
+      data.hero.contentPosition = heroContentPositions.has($("heroContentPosition").value) ? $("heroContentPosition").value : DEFAULT_DATA.hero.contentPosition;
+      data.hero.titleSize = heroTitleSizes.has($("heroTitleSize").value) ? $("heroTitleSize").value : DEFAULT_DATA.hero.titleSize;
       data.hero.imageAlt = $("heroAlt").value.trim() || DEFAULT_DATA.hero.imageAlt;
       data.intro.enabled = $("introEnabled").value === "true";
       data.intro.image = $("introImage").value.trim();
       data.intro.imageAlt = $("introAlt").value.trim() || DEFAULT_DATA.intro.imageAlt;
+      data.intro.title = $("introTitle").value.trim() || data.hero.title || DEFAULT_DATA.intro.title;
+      data.intro.textAlign = introTextAligns.has($("introTextAlign").value) ? $("introTextAlign").value : DEFAULT_DATA.intro.textAlign;
       data.intro.durationMs = Math.min(Math.max(Number($("introDuration").value) || 3000, 400), 10000);
       data.intro.useSessionSkip = $("introSkip").value === "true";
+      data.gallery.enabled = $("galleryEnabled").value === "true";
+      data.gallery.title = $("galleryTitle").value.trim() || DEFAULT_DATA.gallery.title;
+      data.gallery.columns = galleryColumns.has(Number($("galleryColumns").value)) ? Number($("galleryColumns").value) : DEFAULT_DATA.gallery.columns;
       data.footer.title = $("footerTitle").value.trim() || DEFAULT_DATA.footer.title;
       data.footer.content = $("footerContent").value.trim() || DEFAULT_DATA.footer.content;
+      data.footer.image = $("footerImage").value.trim();
+      data.footer.imageAlt = $("footerAlt").value.trim() || DEFAULT_DATA.footer.imageAlt;
     }
 
     function renderForm() {
       $("heroTitle").value = data.hero.title;
+      $("heroLabel").value = data.hero.label;
       $("themePreset").value = data.theme.preset;
       $("themeFont").value = data.theme.fontFamily;
       $("heroSubtitle").value = data.hero.subtitle;
       $("heroImage").value = data.hero.image;
       $("heroImagePosition").value = data.hero.imagePosition;
+      $("heroContentPosition").value = data.hero.contentPosition;
+      $("heroTitleSize").value = data.hero.titleSize;
       $("heroAlt").value = data.hero.imageAlt;
       $("introEnabled").value = String(data.intro.enabled);
+      $("introTitle").value = data.intro.title;
+      $("introTextAlign").value = data.intro.textAlign;
       $("introImage").value = data.intro.image;
       $("introAlt").value = data.intro.imageAlt;
       $("introDuration").value = data.intro.durationMs;
       $("introSkip").value = String(data.intro.useSessionSkip);
+      $("articleColumns").value = String(data.layout.articleColumns);
+      $("galleryEnabled").value = String(data.gallery.enabled);
+      $("galleryTitle").value = data.gallery.title;
+      $("galleryColumns").value = String(data.gallery.columns);
       $("footerTitle").value = data.footer.title;
       $("footerContent").value = data.footer.content;
+      $("footerImage").value = data.footer.image;
+      $("footerAlt").value = data.footer.imageAlt;
       renderArticleEditors();
+      renderGalleryEditors();
     }
 
     function renderArticleEditors() {
@@ -762,22 +955,74 @@
         row1.append(
           makeInput("이모지", article.emoji, "emoji"),
           makeInput("타이틀", article.title, "title"),
-          makeSelect("글머리 기호", article.bulletStyle, "bulletStyle", [["star", "star: ✦"], ["arrow", "arrow: ▸"], ["dot", "dot: ●"]])
+          makeSelect("글머리 기호", article.bulletStyle, "bulletStyle", [["star", "star: ✦"], ["arrow", "arrow: ▸"], ["dot", "dot: ●"], ["none", "없음"]])
         );
 
         const row2 = document.createElement("div");
         row2.className = "grid-2";
         row2.append(
           makeSelect("폰트 크기", article.fontSize, "fontSize", [["small", "small"], ["medium", "medium"], ["large", "large"]]),
-          makeInput("ID", article.id, "id")
+          makeSelect("아티클 배치", article.width || "half", "width", [["half", "반 칸: 한 줄에 2개"], ["full", "전체: 한 줄에 1개"]])
         );
+
+        const row3 = document.createElement("div");
+        row3.className = "grid-2";
+        row3.append(makeInput("ID", article.id, "id"));
 
         const content = makeTextarea("본문 내용", article.content.join("\n"), "content");
         const mini = document.createElement("div");
         mini.className = "mini-card";
         mini.append(renderMiniArticle(article));
 
-        wrap.append(tools, row1, row2, content, mini);
+        wrap.append(tools, row1, row2, row3, content, mini);
+        root.append(wrap);
+      });
+    }
+
+    function renderGalleryEditors() {
+      const root = $("galleryEditors");
+      root.textContent = "";
+      if (!data.gallery.images.length) {
+        const empty = document.createElement("p");
+        empty.className = "hint";
+        empty.textContent = "아직 추가된 갤러리 사진이 없습니다.";
+        root.append(empty);
+        return;
+      }
+
+      data.gallery.images.forEach((image, index) => {
+        const wrap = document.createElement("div");
+        wrap.className = "article-editor";
+        wrap.dataset.index = index;
+
+        const tools = document.createElement("div");
+        tools.className = "article-tools";
+        const title = document.createElement("h3");
+        title.textContent = `갤러리 사진 ${index + 1}`;
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        [["위로", "up"], ["아래로", "down"], ["삭제", "delete"]].forEach(([label, action]) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = label;
+          btn.dataset.galleryAction = action;
+          if (action === "delete") btn.className = "danger";
+          actions.append(btn);
+        });
+        tools.append(title, actions);
+
+        const row = document.createElement("div");
+        row.className = "grid-2";
+        row.append(
+          makeInput("사진 경로 또는 URL", image.src, "src"),
+          makeInput("사진 alt 텍스트", image.alt, "alt")
+        );
+
+        const preview = document.createElement("div");
+        preview.className = "image-preview";
+        renderImagePreview(preview, image.src, image.alt, "갤러리 사진 미리보기");
+
+        wrap.append(tools, row, preview);
         root.append(wrap);
       });
     }
@@ -832,6 +1077,16 @@
       updateEditorMini(editor, article);
     }
 
+    function syncGalleryField(target) {
+      const editor = target.closest(".article-editor");
+      if (!editor || !target.dataset.field) return;
+      const image = data.gallery.images[Number(editor.dataset.index)];
+      if (!image) return;
+      image[target.dataset.field] = target.value.trim();
+      const preview = editor.querySelector(".image-preview");
+      if (preview) renderImagePreview(preview, image.src, image.alt, "갤러리 사진 미리보기");
+    }
+
     function updateEditorMini(editor, article) {
       const mini = editor.querySelector(".mini-card");
       if (!mini) return;
@@ -858,20 +1113,27 @@
       const frag = document.createDocumentFragment();
       const title = document.createElement("div");
       title.className = "mini-title";
+      if (!article.emoji) title.style.justifyContent = "center";
       const emoji = document.createElement("span");
-      emoji.textContent = article.emoji || "✦";
+      emoji.textContent = article.emoji;
       const textNode = document.createElement("span");
       textNode.textContent = article.title || "제목 없음";
-      title.append(emoji, textNode);
+      if (article.emoji) title.append(emoji);
+      title.append(textNode);
       const list = document.createElement("ul");
       list.className = article.fontSize;
       article.content.forEach(line => {
         const li = document.createElement("li");
-        const bullet = document.createElement("span");
-        bullet.textContent = bullets[article.bulletStyle] || bullets.star;
         const content = document.createElement("span");
         content.textContent = line;
-        li.append(bullet, content);
+        if (article.bulletStyle !== "none") {
+          const bullet = document.createElement("span");
+          bullet.textContent = bullets[article.bulletStyle] || bullets.star;
+          li.append(bullet);
+        } else {
+          li.style.gridTemplateColumns = "1fr";
+        }
+        li.append(content);
         list.append(li);
       });
       frag.append(title, list);
@@ -890,6 +1152,9 @@
       hero.className = "mini-hero";
       hero.style.background = theme.hero;
       hero.style.setProperty("--preview-overlay", theme.overlay);
+      hero.style.setProperty("--preview-art", theme.art || "none");
+      hero.style.setProperty("--preview-art-opacity", theme.artOpacity || ".25");
+      hero.style.setProperty("--preview-art-blend", theme.artBlend || "screen");
       hero.style.alignItems = theme.align;
       hero.style.textAlign = theme.center;
       if (data.hero.image) {
@@ -903,20 +1168,36 @@
       const heroText = document.createElement("div");
       heroText.style.position = "relative";
       heroText.style.zIndex = "1";
+      const offsets = { default: "0", lower: "clamp(1rem, 5vh, 3rem)", bottom: "clamp(2rem, 9vh, 5rem)" };
+      heroText.style.transform = data.hero.contentPosition === "bottom" ? "none" : `translateY(${offsets[data.hero.contentPosition] || offsets.default})`;
       const h2 = document.createElement("h2");
       h2.textContent = data.hero.title;
       h2.style.color = theme.heroText || theme.text;
+      h2.style.fontSize = heroTitleSizeMap[data.hero.titleSize] || heroTitleSizeMap.large;
       h2.style.letterSpacing = theme.spacing || "0";
       h2.style.textTransform = theme.uppercase ? "uppercase" : "none";
       const p = document.createElement("p");
       p.textContent = data.hero.subtitle;
       p.style.color = theme.heroText || theme.muted;
       heroText.append(h2, p);
-      hero.append(heroText);
+      if (data.hero.contentPosition === "bottom") {
+        hero.style.minHeight = "190px";
+      } else {
+        hero.append(heroText);
+      }
 
       const main = document.createElement("div");
       main.className = "mini-main";
       main.style.background = theme.bg;
+      main.style.gridTemplateColumns = "repeat(2, minmax(0, 1fr))";
+      if (data.hero.contentPosition === "bottom") {
+        const dock = document.createElement("div");
+        dock.style.gridColumn = "1 / -1";
+        dock.style.padding = ".85rem .2rem";
+        dock.style.textAlign = theme.center;
+        dock.append(heroText);
+        main.append(dock);
+      }
       if (data.articles.length) {
         data.articles.forEach(article => {
           const card = document.createElement("div");
@@ -924,6 +1205,7 @@
           card.style.background = theme.card;
           card.style.borderColor = theme.line;
           card.style.borderRadius = theme.radius;
+          card.style.gridColumn = article.width === "full" ? "1 / -1" : "span 1";
           card.append(renderMiniArticle(article));
           main.append(card);
         });
@@ -933,8 +1215,43 @@
         main.append(empty);
       }
 
+      if (data.gallery.enabled && data.gallery.images.length) {
+        const galleryWrap = document.createElement("div");
+        galleryWrap.style.gridColumn = "1 / -1";
+        galleryWrap.style.display = "grid";
+        galleryWrap.style.gap = ".65rem";
+        const galleryTitle = document.createElement("strong");
+        galleryTitle.textContent = data.gallery.title || "갤러리";
+        galleryTitle.style.color = theme.accent;
+        const galleryGrid = document.createElement("div");
+        galleryGrid.style.display = "grid";
+        galleryGrid.style.gap = ".55rem";
+        galleryGrid.style.gridTemplateColumns = `repeat(${data.gallery.columns}, minmax(0, 1fr))`;
+        data.gallery.images.filter(item => item.src).forEach(item => {
+          const frame = document.createElement("div");
+          frame.className = "mini-card";
+          frame.style.padding = "0";
+          frame.style.overflow = "hidden";
+          frame.style.borderColor = theme.line;
+          frame.style.borderRadius = theme.radius;
+          const img = document.createElement("img");
+          img.src = item.src;
+          img.alt = item.alt || "";
+          img.style.display = "block";
+          img.style.width = "100%";
+          img.style.aspectRatio = "16 / 10";
+          img.style.objectFit = "cover";
+          img.onerror = () => frame.remove();
+          frame.append(img);
+          galleryGrid.append(frame);
+        });
+        galleryWrap.append(galleryTitle, galleryGrid);
+        main.append(galleryWrap);
+      }
+
       const footer = document.createElement("div");
       footer.className = "mini-footer";
+      footer.style.gridColumn = "1 / -1";
       footer.style.background = data.theme.preset === "claude" ? "#181715" : theme.card;
       footer.style.color = data.theme.preset === "claude" ? "#faf9f5" : theme.text;
       footer.style.borderLeftColor = theme.accent;
@@ -943,14 +1260,27 @@
       const copy = document.createElement("div");
       copy.textContent = data.footer.content;
       footer.append(strong, copy);
+      if (data.footer.image) {
+        const img = document.createElement("img");
+        img.src = data.footer.image;
+        img.alt = data.footer.imageAlt || "";
+        img.style.display = "block";
+        img.style.width = "100%";
+        img.style.maxHeight = "220px";
+        img.style.objectFit = "cover";
+        img.style.marginTop = ".75rem";
+        img.style.borderRadius = theme.radius;
+        img.onerror = () => img.remove();
+        footer.append(img);
+      }
       main.append(footer);
       root.append(hero, main);
     }
 
     function validateData() {
       const issues = [];
-      if (!data.hero.title.trim()) issues.push("Hero 타이틀이 비어 있습니다.");
-      if (!data.hero.subtitle.trim()) issues.push("Hero 서브 타이틀이 비어 있습니다.");
+      if (!data.hero.title.trim()) issues.push("메인 타이틀이 비어 있습니다.");
+      if (!data.hero.subtitle.trim()) issues.push("메인 서브 타이틀이 비어 있습니다.");
       if (!data.articles.length) issues.push("아티클이 하나도 없습니다.");
       data.articles.forEach((article, index) => {
         if (!article.title.trim()) issues.push(`아티클 ${index + 1}의 타이틀이 비어 있습니다.`);
@@ -972,6 +1302,7 @@
       collectForm();
       renderImagePreview($("heroImagePreview"), data.hero.image, data.hero.imageAlt, "대표 이미지 미리보기");
       renderImagePreview($("introImagePreview"), data.intro.image, data.intro.imageAlt, "인트로 이미지 미리보기");
+      renderImagePreview($("footerImagePreview"), data.footer.image, data.footer.imageAlt, "하단 이미지 미리보기");
       renderPreview();
       $("jsonPreview").textContent = JSON.stringify(data, null, 2);
       validateData();
@@ -1044,9 +1375,21 @@
         title: "새 아티클",
         content: ["새 내용을 입력하세요"],
         bulletStyle: "star",
-        fontSize: "medium"
+        fontSize: "medium",
+        width: data.layout.articleColumns === 1 ? "full" : "half"
       });
       renderArticleEditors();
+      updateAll(true);
+    }
+
+    function addGalleryImage() {
+      data.gallery.enabled = true;
+      data.gallery.images.push({
+        id: `gallery-${Date.now()}`,
+        src: "",
+        alt: "갤러리 이미지"
+      });
+      renderGalleryEditors();
       updateAll(true);
     }
 
@@ -1068,8 +1411,27 @@
       updateAll(true);
     }
 
+    function handleGalleryAction(target) {
+      const editor = target.closest(".article-editor");
+      if (!editor || !target.dataset.galleryAction) return;
+      const index = Number(editor.dataset.index);
+      if (target.dataset.galleryAction === "delete") {
+        if (!confirm("이 갤러리 사진을 삭제할까요?")) return;
+        data.gallery.images.splice(index, 1);
+      }
+      if (target.dataset.galleryAction === "up" && index > 0) {
+        [data.gallery.images[index - 1], data.gallery.images[index]] = [data.gallery.images[index], data.gallery.images[index - 1]];
+      }
+      if (target.dataset.galleryAction === "down" && index < data.gallery.images.length - 1) {
+        [data.gallery.images[index + 1], data.gallery.images[index]] = [data.gallery.images[index], data.gallery.images[index + 1]];
+      }
+      renderGalleryEditors();
+      updateAll(true);
+    }
+
     document.addEventListener("input", event => {
-      if (event.target.closest(".article-editor")) syncArticleField(event.target);
+      if (event.target.closest("#articleEditors")) syncArticleField(event.target);
+      if (event.target.closest("#galleryEditors")) syncGalleryField(event.target);
       updateAll(true);
     });
 
@@ -1079,12 +1441,15 @@
         event.target.value = "";
         return;
       }
-      if (event.target.closest(".article-editor")) syncArticleField(event.target);
+      if (event.target.closest("#articleEditors")) syncArticleField(event.target);
+      if (event.target.closest("#galleryEditors")) syncGalleryField(event.target);
       updateAll(true);
     });
 
     $("articleEditors").addEventListener("click", event => handleArticleAction(event.target));
+    $("galleryEditors").addEventListener("click", event => handleGalleryAction(event.target));
     $("addArticleBtn").addEventListener("click", addArticle);
+    $("addGalleryImageBtn").addEventListener("click", addGalleryImage);
     $("exportBtn").addEventListener("click", exportJson);
     $("saveDraftBtn").addEventListener("click", saveDraft);
     $("loadDraftBtn").addEventListener("click", loadDraft);
