@@ -24,7 +24,7 @@
     "enabled": true,
     "image": "assets/intro.png",
     "imageAlt": "판타지 인트로 이미지",
-    "title": "ㅤ",
+    "title": "ㅤㅤ",
     "textAlign": "center",
     "durationMs": 3000,
     "useSessionSkip": true
