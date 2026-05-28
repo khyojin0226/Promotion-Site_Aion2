@@ -5,7 +5,7 @@
   },
   "theme": {
     "fontFamily": "clean",
-    "preset": "bugatti"
+    "preset": "celestial"
   },
   "layout": {
     "articleColumns": 1
@@ -16,7 +16,7 @@
     "contentPosition": "lower",
     "titleSize": "small",
     "subtitle": "빛의 날개 아래, 함께 전장을 지배할 동료를 찾습니다.",
-    "image": "assets/intro.png",
+    "image": "",
     "imagePosition": "center 25%",
     "imageAlt": "길드 대표 이미지"
   },
@@ -24,7 +24,7 @@
     "enabled": true,
     "image": "assets/intro.png",
     "imageAlt": "판타지 인트로 이미지",
-    "title": "신 레기온\n신규 인원 모집",
+    "title": "ㅤ",
     "textAlign": "center",
     "durationMs": 3000,
     "useSessionSkip": true
@@ -93,11 +93,6 @@
       {
         "id": "gallery-1779958534549",
         "src": "assets/gallery-4.jpg",
-        "alt": "갤러리 이미지"
-      },
-      {
-        "id": "gallery-1779962270098",
-        "src": "assets/gallery-6.jpg",
         "alt": "갤러리 이미지"
       },
       {
