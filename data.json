@@ -24,7 +24,7 @@
     "enabled": true,
     "image": "assets/intro.png",
     "imageAlt": "판타지 인트로 이미지",
-    "title": "유스티엘\n신 레기온",
+    "title": "신 레기온\n신규 인원 모집",
     "textAlign": "center",
     "durationMs": 3000,
     "useSessionSkip": true
@@ -88,16 +88,21 @@
   "gallery": {
     "enabled": true,
     "title": "갤러리",
-    "columns": 2,
+    "columns": 3,
     "images": [
       {
         "id": "gallery-1779958534549",
-        "src": "assets/gallery-10.jpg",
+        "src": "assets/gallery-4.jpg",
         "alt": "갤러리 이미지"
       },
       {
-        "id": "gallery-1779959093676",
-        "src": "assets/gallery-8.jpg",
+        "id": "gallery-1779962270098",
+        "src": "assets/gallery-6.jpg",
+        "alt": "갤러리 이미지"
+      },
+      {
+        "id": "gallery-1779962280610",
+        "src": "assets/gallery-10.jpg",
         "alt": "갤러리 이미지"
       }
     ]
