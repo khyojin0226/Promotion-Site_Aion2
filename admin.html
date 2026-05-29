@@ -21,6 +21,24 @@
       --input: #0d0c0a;
     }
 
+    .order-list {
+      display: grid;
+      gap: .65rem;
+    }
+
+    .order-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      padding: .7rem .8rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.035);
+    }
+
+    .order-row strong { color: var(--gold-2); }
+
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -413,6 +431,12 @@
       </section>
 
       <section class="card">
+        <div class="card-head"><h2>단락 순서</h2></div>
+        <p class="hint">방문자 페이지에서 메인 타이틀, 아티클, 갤러리, 하단 안내가 표시되는 순서를 바꿀 수 있습니다.</p>
+        <div id="sectionOrderEditor" class="order-list"></div>
+      </section>
+
+      <section class="card">
         <div class="card-head"><h2>메인 타이틀 영역</h2></div>
         <div class="grid-2">
           <label>메인 타이틀 상단 작은 문구
@@ -585,7 +609,7 @@
     const DEFAULT_DATA = {
       site: { version: "1.0.0", updatedAt: "2026-01-01" },
       theme: { fontFamily: "system", preset: "celestial" },
-      layout: { articleColumns: 2 },
+      layout: { articleColumns: 2, sectionOrder: ["title", "articles", "gallery", "footer"] },
       hero: {
         title: "Celestial Vanguard",
         label: "MMORPG Guild Recruitment",
@@ -600,7 +624,7 @@
         enabled: true,
         image: "",
         imageAlt: "판타지 인트로 이미지",
-        title: "Celestial Vanguard",
+        title: "",
         textAlign: "center",
         durationMs: 3000,
         useSessionSkip: true
@@ -652,6 +676,13 @@
     const fontSizes = new Set(["small", "medium", "large"]);
     const articleColumns = new Set([1, 2]);
     const galleryColumns = new Set([1, 2, 3]);
+    const sectionKeys = ["title", "articles", "gallery", "footer"];
+    const sectionLabels = {
+      title: "메인 타이틀",
+      articles: "아티클",
+      gallery: "갤러리",
+      footer: "하단 안내"
+    };
     const fontOptions = new Set(["system", "notoSans", "notoSerif", "nanumGothic", "nanumMyeongjo", "gowunDodum", "gowunBatang", "doHyeon", "blackHan", "serif", "clean", "rounded"]);
     const themePresets = new Set(["celestial", "apple", "bugatti", "notion", "claude", "moonlight"]);
     const imagePositions = new Set(["center top", "center 25%", "center center", "center 65%", "center bottom", "left center", "right center"]);
@@ -793,6 +824,15 @@
       return text(value).split(/\r?\n/).map(line => line.trim()).filter(Boolean);
     }
 
+    function normalizeSectionOrder(value, fallback = DEFAULT_DATA.layout.sectionOrder) {
+      const source = Array.isArray(value) ? value : fallback;
+      const order = source.filter(key => sectionKeys.includes(key));
+      sectionKeys.forEach(key => {
+        if (!order.includes(key)) order.push(key);
+      });
+      return order;
+    }
+
     function normalizeData(raw) {
       const source = raw && typeof raw === "object" ? raw : {};
       return {
@@ -805,7 +845,8 @@
           preset: themePresets.has(source.theme?.preset) ? source.theme.preset : DEFAULT_DATA.theme.preset
         },
         layout: {
-          articleColumns: articleColumns.has(Number(source.layout?.articleColumns)) ? Number(source.layout.articleColumns) : DEFAULT_DATA.layout.articleColumns
+          articleColumns: articleColumns.has(Number(source.layout?.articleColumns)) ? Number(source.layout.articleColumns) : DEFAULT_DATA.layout.articleColumns,
+          sectionOrder: normalizeSectionOrder(source.layout?.sectionOrder)
         },
         hero: {
           title: text(source.hero?.title, DEFAULT_DATA.hero.title),
@@ -821,7 +862,7 @@
           enabled: typeof source.intro?.enabled === "boolean" ? source.intro.enabled : DEFAULT_DATA.intro.enabled,
           image: text(source.intro?.image, ""),
           imageAlt: text(source.intro?.imageAlt, DEFAULT_DATA.intro.imageAlt),
-          title: text(source.intro?.title, source.hero?.title || DEFAULT_DATA.intro.title),
+          title: text(source.intro?.title, DEFAULT_DATA.intro.title),
           textAlign: introTextAligns.has(source.intro?.textAlign) ? source.intro.textAlign : DEFAULT_DATA.intro.textAlign,
           durationMs: Math.min(Math.max(Number(source.intro?.durationMs) || 3000, 400), 10000),
           useSessionSkip: typeof source.intro?.useSessionSkip === "boolean" ? source.intro.useSessionSkip : DEFAULT_DATA.intro.useSessionSkip
@@ -868,6 +909,7 @@
       data.theme.fontFamily = fontOptions.has($("themeFont").value) ? $("themeFont").value : "system";
       data.theme.preset = themePresets.has($("themePreset").value) ? $("themePreset").value : "celestial";
       data.layout.articleColumns = articleColumns.has(Number($("articleColumns").value)) ? Number($("articleColumns").value) : DEFAULT_DATA.layout.articleColumns;
+      data.layout.sectionOrder = normalizeSectionOrder(data.layout.sectionOrder);
       data.hero.title = $("heroTitle").value.trim() || DEFAULT_DATA.hero.title;
       data.hero.label = $("heroLabel").value.trim() || DEFAULT_DATA.hero.label;
       data.hero.subtitle = $("heroSubtitle").value.trim() || DEFAULT_DATA.hero.subtitle;
@@ -879,7 +921,7 @@
       data.intro.enabled = $("introEnabled").value === "true";
       data.intro.image = $("introImage").value.trim();
       data.intro.imageAlt = $("introAlt").value.trim() || DEFAULT_DATA.intro.imageAlt;
-      data.intro.title = $("introTitle").value.trim() || data.hero.title || DEFAULT_DATA.intro.title;
+      data.intro.title = $("introTitle").value.trim();
       data.intro.textAlign = introTextAligns.has($("introTextAlign").value) ? $("introTextAlign").value : DEFAULT_DATA.intro.textAlign;
       data.intro.durationMs = Math.min(Math.max(Number($("introDuration").value) || 3000, 400), 10000);
       data.intro.useSessionSkip = $("introSkip").value === "true";
@@ -918,8 +960,33 @@
       $("footerContent").value = data.footer.content;
       $("footerImage").value = data.footer.image;
       $("footerAlt").value = data.footer.imageAlt;
+      renderSectionOrderEditor();
       renderArticleEditors();
       renderGalleryEditors();
+    }
+
+    function renderSectionOrderEditor() {
+      const root = $("sectionOrderEditor");
+      root.textContent = "";
+      data.layout.sectionOrder = normalizeSectionOrder(data.layout.sectionOrder);
+      data.layout.sectionOrder.forEach((key, index) => {
+        const row = document.createElement("div");
+        row.className = "order-row";
+        row.dataset.index = index;
+        const label = document.createElement("strong");
+        label.textContent = `${index + 1}. ${sectionLabels[key] || key}`;
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        [["위로", "up"], ["아래로", "down"]].forEach(([textValue, action]) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = textValue;
+          btn.dataset.sectionAction = action;
+          actions.append(btn);
+        });
+        row.append(label, actions);
+        root.append(row);
+      });
     }
 
     function renderArticleEditors() {
@@ -1176,6 +1243,7 @@
       h2.style.fontSize = heroTitleSizeMap[data.hero.titleSize] || heroTitleSizeMap.large;
       h2.style.letterSpacing = theme.spacing || "0";
       h2.style.textTransform = theme.uppercase ? "uppercase" : "none";
+      h2.style.whiteSpace = "pre-line";
       const p = document.createElement("p");
       p.textContent = data.hero.subtitle;
       p.style.color = theme.heroText || theme.muted;
@@ -1190,9 +1258,12 @@
       main.className = "mini-main";
       main.style.background = theme.bg;
       main.style.gridTemplateColumns = "repeat(2, minmax(0, 1fr))";
+      const sectionOrder = normalizeSectionOrder(data.layout.sectionOrder);
+      const sectionOrderValue = key => String(sectionOrder.indexOf(key) + 1);
       if (data.hero.contentPosition === "bottom") {
         const dock = document.createElement("div");
         dock.style.gridColumn = "1 / -1";
+        dock.style.order = sectionOrderValue("title");
         dock.style.padding = ".85rem .2rem";
         dock.style.textAlign = theme.center;
         dock.append(heroText);
@@ -1206,6 +1277,7 @@
           card.style.borderColor = theme.line;
           card.style.borderRadius = theme.radius;
           card.style.gridColumn = article.width === "full" ? "1 / -1" : "span 1";
+          card.style.order = sectionOrderValue("articles");
           card.append(renderMiniArticle(article));
           main.append(card);
         });
@@ -1218,6 +1290,7 @@
       if (data.gallery.enabled && data.gallery.images.length) {
         const galleryWrap = document.createElement("div");
         galleryWrap.style.gridColumn = "1 / -1";
+        galleryWrap.style.order = sectionOrderValue("gallery");
         galleryWrap.style.display = "grid";
         galleryWrap.style.gap = ".65rem";
         const galleryTitle = document.createElement("strong");
@@ -1252,6 +1325,7 @@
       const footer = document.createElement("div");
       footer.className = "mini-footer";
       footer.style.gridColumn = "1 / -1";
+      footer.style.order = sectionOrderValue("footer");
       footer.style.background = data.theme.preset === "claude" ? "#181715" : theme.card;
       footer.style.color = data.theme.preset === "claude" ? "#faf9f5" : theme.text;
       footer.style.borderLeftColor = theme.accent;
@@ -1429,6 +1503,22 @@
       updateAll(true);
     }
 
+    function handleSectionOrderAction(target) {
+      const row = target.closest(".order-row");
+      if (!row || !target.dataset.sectionAction) return;
+      const index = Number(row.dataset.index);
+      const order = normalizeSectionOrder(data.layout.sectionOrder);
+      if (target.dataset.sectionAction === "up" && index > 0) {
+        [order[index - 1], order[index]] = [order[index], order[index - 1]];
+      }
+      if (target.dataset.sectionAction === "down" && index < order.length - 1) {
+        [order[index + 1], order[index]] = [order[index], order[index + 1]];
+      }
+      data.layout.sectionOrder = order;
+      renderSectionOrderEditor();
+      updateAll(true);
+    }
+
     document.addEventListener("input", event => {
       if (event.target.closest("#articleEditors")) syncArticleField(event.target);
       if (event.target.closest("#galleryEditors")) syncGalleryField(event.target);
@@ -1448,6 +1538,7 @@
 
     $("articleEditors").addEventListener("click", event => handleArticleAction(event.target));
     $("galleryEditors").addEventListener("click", event => handleGalleryAction(event.target));
+    $("sectionOrderEditor").addEventListener("click", event => handleSectionOrderAction(event.target));
     $("addArticleBtn").addEventListener("click", addArticle);
     $("addGalleryImageBtn").addEventListener("click", addGalleryImage);
     $("exportBtn").addEventListener("click", exportJson);
