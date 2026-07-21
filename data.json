@@ -1,7 +1,7 @@
 {
   "site": {
     "version": "1.0.0",
-    "updatedAt": "2026-05-29"
+    "updatedAt": "2026-07-21"
   },
   "theme": {
     "fontFamily": "clean",
@@ -41,7 +41,7 @@
       "emoji": "",
       "title": "가입 전투력 기준",
       "content": [
-        "전투력 500K 이상 (딜러, 사제)",
+        "전투력 750K 이상 (탱커, 딜러, 사제)",
         "가입 문의 시 전투력 기준 확인 필수"
       ],
       "bulletStyle": "none",
